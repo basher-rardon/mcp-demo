@@ -1,0 +1,21 @@
+{
+  "name": "mcp-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node client.js",
+    "client": "node client.js"
+  },
+  "bin": {
+    "hello-world-server": "./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.3"
+  }
+}

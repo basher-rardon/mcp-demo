@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Demo Collection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        
+        .demo-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border-color: #3498db;
+        }
+        
+        .demo-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .demo-description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .feature {
+            background: #e8f5e8;
+            color: #27ae60;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MCP Demo Collection</h1>
+        <p class="subtitle">Interactive demonstrations of the Model Context Protocol</p>
+        
+        <div class="demo-card">
+            <div class="demo-title">🎓 MCP vs REST: 5 Core Concepts</div>
+            <div class="demo-description">
+                An interactive educational guide that teaches the 5 fundamental concepts that make MCP revolutionary for AI applications, with direct comparisons to traditional REST APIs.
+            </div>
+            <div class="features">
+                <div class="feature">Tools & Resources</div>
+                <div class="feature">Persistent State</div>
+                <div class="feature">Real-time Streaming</div>
+                <div class="feature">Unified Protocol</div>
+                <div class="feature">Rich Error Handling</div>
+            </div>
+            <br>
+            <a href="mcp_demo_interactive.html" class="demo-link">🎮 Start Learning</a>
+        </div>
+        
+        <div class="demo-card">
+            <div class="demo-title">🛠️ MCP Comprehensive Playground</div>
+            <div class="demo-description">
+                A complete testing environment for all MCP features with real-time protocol logging and comprehensive tool/resource demonstrations.
+            </div>
+            <div class="features">
+                <div class="feature">Live Tool Testing</div>
+                <div class="feature">Resource Management</div>
+                <div class="feature">Protocol Logging</div>
+                <div class="feature">Error Simulation</div>
+                <div class="feature">State Management</div>
+            </div>
+            <br>
+            <a href="mcp_demo_standalone.html" class="demo-link">🔬 Open Playground</a>
+        </div>
+        
+        <div class="footer">
+            <p>Built with the Model Context Protocol SDK | Ready for GitHub Pages</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP vs REST: 5 Core Concepts Interactive Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content { position: relative; z-index: 1; }
+        .hero h1 { font-size: 3.5em; margin-bottom: 20px; font-weight: 700; }
+        .hero p { font-size: 1.3em; opacity: 0.9; max-width: 800px; margin: 0 auto; }
+        
+        .progress-bar {
+            background: #ecf0f1;
+            height: 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .concept-section {
+            min-height: 100vh;
+            padding: 80px 40px;
+            position: relative;
+            display: none;
+        }
+        
+        .concept-section.active { display: block; }
+        
+        .concept-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .concept-number {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border-radius: 50%;
+            font-size: 2em;
+            font-weight: bold;
+            line-height: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .concept-title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .concept-subtitle {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .overview-card, .comparison-card, .implementation-card, .demo-card, .reflection-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .comparison-table th {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .mcp-cell { background: rgba(39, 174, 96, 0.1); }
+        .rest-cell { background: rgba(52, 152, 219, 0.1); }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .code-title {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 8px 15px;
+            font-size: 0.8em;
+            border-radius: 4px 4px 0 0;
+            margin: -20px -20px 15px -20px;
+            font-weight: 600;
+        }
+        
+        .demo-container {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .demo-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .demo-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1em;
+            min-width: 200px;
+        }
+        
+        .demo-output {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            min-height: 100px;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .protocol-log {
+            background: #1a252f;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8em;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-left: 3px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .log-timestamp {
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 50;
+        }
+        
+        .nav-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(52, 152, 219, 0.4);
+        }
+        
+        .nav-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .concept-nav {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 50;
+        }
+        
+        .concept-nav-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .concept-nav-item.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .concept-nav-item:hover {
+            transform: scale(1.1);
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .highlight-title {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .json-viewer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+        }
+        
+        .json-key { color: #3498db; }
+        .json-string { color: #2ecc71; }
+        .json-number { color: #e74c3c; }
+        .json-boolean { color: #f39c12; }
+        
+        .stream-output {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .error-output {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        
+        .success-output {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .concept-nav { display: none; }
+            .hero h1 { font-size: 2.5em; }
+            .hero p { font-size: 1.1em; }
+            .concept-section { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="hero">
+            <div class="hero-content">
+                <h1>🚀 MCP vs REST</h1>
+                <p>Discover the 5 core concepts that make the Model Context Protocol revolutionary for AI applications, with interactive comparisons to traditional REST APIs.</p>
+            </div>
+        </div>
+
+        <!-- Concept 1: Tools/Resources -->
+        <div class="concept-section active" data-concept="1">
+            <div class="concept-header">
+                <div class="concept-number">1</div>
+                <h2 class="concept-title">Tools & Resources</h2>
+                <p class="concept-subtitle">Unified interface for AI agents to discover and interact with capabilities</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="overview-card">
+                    <h3 class="card-title">🎯 Concept Overview</h3>
+                    <p>MCP provides a unified way for AI agents to discover and interact with tools (functions) and resources (data sources) through a standardized protocol.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Tools:</strong> Executable functions with defined schemas</li>
+                        <li><strong>Resources:</strong> Data sources with URIs and metadata</li>
+                        <li><strong>Discovery:</strong> Dynamic capability enumeration</li>
+                        <li><strong>Validation:</strong> Built-in schema validation</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 class="card-title">⚖️ MCP vs REST Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>MCP</th>
+                                <th>REST</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Discovery</strong></td>
+                                <td class="mcp-cell">Built-in tools/list endpoint</td>
+                                <td class="rest-cell">Manual documentation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Schema</strong></td>
+                                <td class="mcp-cell">JSON Schema included</td>
+                                <td class="rest-cell">OpenAPI separate</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Validation</strong></td>
+                                <td class="mcp-cell">Automatic</td>
+                                <td class="rest-cell">Manual implementation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Protocol</strong></td>
+                                <td class="mcp-cell">JSON-RPC 2.0</td>
+                                <td class="rest-cell">HTTP verbs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="implementation-card">
+                    <h3 class="card-title">🛠️ Technical Implementation</h3>
+                    <div class="code-block">
+                        <div class="code-title">MCP Tool Discovery</div>
+<pre>{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "id": 1
+}
+
+// Response
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "tools": [{
+      "name": "calculator",
+      "description": "Perform calculations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "expression": {"type": "string"}
+        },
+        "required": ["expression"]
+      }
+    }]
+  }
+}</pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-title">REST API Equivalent</div>
+<pre>GET /api/documentation
+// Manual documentation lookup
+
+POST /api/calculate
+{
+  "expression": "2 + 2"
+}
+// No built-in schema validation</pre>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3 class="card-title">🧪 Interactive Demo</h3>
+                    <div class="demo-container">
+                        <div class="demo-controls">
+                            <button class="demo-button" onclick="discoverTools()">🔍 Discover Tools</button>
+                            <input type="text" class="demo-input" id="toolInput" placeholder="Enter calculation (e.g., 2 + 2 * 3)" value="2 + 2 * 3">
+                            <button class="demo-button" onclick="callTool()">⚡ Execute Tool</button>
+                        </div>
+                        <div class="demo-output" id="toolOutput">Click "Discover Tools" to see available MCP tools...</div>
+                        <div class="protocol-log" id="toolProtocolLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reflection-card full-width">
+                <h3 class="card-title">💡 Key Takeaways</h3>
+                <div class="highlight-box">
+                    <div class="highlight-title">Why MCP Wins for AI Applications:</div>
+                    <p>MCP's built-in discovery and schema validation eliminate the need for AI agents to parse documentation or handle validation errors. This enables truly autonomous agent behavior, while REST APIs require extensive prompt engineering and error handling for the same functionality.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Concept 2: Persistent State -->
+        <div class="concept-section" data-concept="2">
+            <div class="concept-header">
+                <div class="concept-number">2</div>
+                <h2 class="concept-title">Persistent State</h2>
+                <p class="concept-subtitle">Stateful connections that maintain context across interactions</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="overview-card">
+                    <h3 class="card-title">🎯 Concept Overview</h3>
+                    <p>MCP maintains persistent connections and state between the client and server, enabling context-aware interactions and efficient resource usage.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Session State:</strong> Maintains context across calls</li>
+                        <li><strong>Connection Pooling:</strong> Efficient resource usage</li>
+                        <li><strong>State Notifications:</strong> Real-time updates</li>
+                        <li><strong>Memory Management:</strong> Automatic cleanup</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 class="card-title">⚖️ MCP vs REST Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>MCP</th>
+                                <th>REST</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>State</strong></td>
+                                <td class="mcp-cell">Persistent connection</td>
+                                <td class="rest-cell">Stateless by design</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Context</strong></td>
+                                <td class="mcp-cell">Maintained automatically</td>
+                                <td class="rest-cell">Passed in each request</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td class="mcp-cell">Connection reuse</td>
+                                <td class="rest-cell">New connection per request</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Complexity</strong></td>
+                                <td class="mcp-cell">Protocol handles it</td>
+                                <td class="rest-cell">Application must manage</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="implementation-card">
+                    <h3 class="card-title">🛠️ Technical Implementation</h3>
+                    <div class="code-block">
+                        <div class="code-title">MCP Stateful Counter</div>
+<pre>// Server maintains state
+let counter = 0;
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  if (request.params.name === 'increment') {
+    counter++;
+    return {
+      content: [{ 
+        type: 'text', 
+        text: `Counter: ${counter}` 
+      }]
+    };
+  }
+});</pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-title">REST Stateless Approach</div>
+<pre>// Each request must include state
+POST /api/counter/increment
+{
+  "session_id": "abc123",
+  "current_value": 5
+}
+
+// Or store in database/cache
+POST /api/counter/increment
+Headers: Authorization: Bearer token
+// Server looks up state</pre>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3 class="card-title">🧪 Interactive Demo</h3>
+                    <div class="demo-container">
+                        <div class="demo-controls">
+                            <button class="demo-button" onclick="incrementCounter()">➕ Increment Counter</button>
+                            <button class="demo-button" onclick="getCounterValue()">📊 Get Current Value</button>
+                            <button class="demo-button" onclick="resetCounter()">🔄 Reset Counter</button>
+                        </div>
+                        <div class="demo-output" id="stateOutput">Server state: No counter initialized yet...</div>
+                        <div class="protocol-log" id="stateProtocolLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reflection-card full-width">
+                <h3 class="card-title">💡 Key Takeaways</h3>
+                <div class="highlight-box">
+                    <div class="highlight-title">Why Persistent State Matters for AI:</div>
+                    <p>AI agents often need to maintain context across multiple interactions (conversation history, learned preferences, intermediate results). MCP's persistent state eliminates the overhead of state serialization/deserialization and reduces token usage by not requiring context in every request.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Concept 3: Streaming -->
+        <div class="concept-section" data-concept="3">
+            <div class="concept-header">
+                <div class="concept-number">3</div>
+                <h2 class="concept-title">Real-time Streaming</h2>
+                <p class="concept-subtitle">Bidirectional streaming for live data and progressive responses</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="overview-card">
+                    <h3 class="card-title">🎯 Concept Overview</h3>
+                    <p>MCP supports real-time bidirectional streaming, enabling progressive responses and live data feeds essential for modern AI applications.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Progressive Results:</strong> Immediate feedback as processing occurs</li>
+                        <li><strong>Live Data:</strong> Real-time updates and notifications</li>
+                        <li><strong>Backpressure:</strong> Flow control mechanisms</li>
+                        <li><strong>Bidirectional:</strong> Client and server can both stream</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 class="card-title">⚖️ MCP vs REST Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>MCP</th>
+                                <th>REST</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Streaming</strong></td>
+                                <td class="mcp-cell">Native protocol support</td>
+                                <td class="rest-cell">Requires SSE/WebSocket</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bidirectional</strong></td>
+                                <td class="mcp-cell">Built-in</td>
+                                <td class="rest-cell">Complex implementation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Flow Control</strong></td>
+                                <td class="mcp-cell">Automatic backpressure</td>
+                                <td class="rest-cell">Manual implementation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Setup</strong></td>
+                                <td class="mcp-cell">Single connection</td>
+                                <td class="rest-cell">Multiple protocols</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="implementation-card">
+                    <h3 class="card-title">🛠️ Technical Implementation</h3>
+                    <div class="code-block">
+                        <div class="code-title">MCP Streaming Response</div>
+<pre>// Server streams progress updates
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  if (request.params.name === 'process_data') {
+    // Send progress updates
+    for (let i = 0; i <= 100; i += 10) {
+      await server.notification({
+        method: 'progress',
+        params: { percentage: i }
+      });
+      await delay(100);
+    }
+    return { content: [{ type: 'text', text: 'Complete!' }] };
+  }
+});</pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-title">REST Streaming Workaround</div>
+<pre>// Requires Server-Sent Events
+GET /api/process-data
+Accept: text/event-stream
+
+// Server response
+data: {"progress": 10}
+
+data: {"progress": 20}
+
+data: {"complete": true}
+
+// Or WebSocket upgrade required</pre>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3 class="card-title">🧪 Interactive Demo</h3>
+                    <div class="demo-container">
+                        <div class="demo-controls">
+                            <input type="number" class="demo-input" id="countdownInput" placeholder="Countdown from..." value="10" min="1" max="20">
+                            <button class="demo-button" onclick="startCountdown()">🚀 Start Streaming Countdown</button>
+                            <button class="demo-button" onclick="stopStream()" disabled id="stopButton">⏹️ Stop Stream</button>
+                        </div>
+                        <div class="stream-output" id="streamOutput">No active stream...</div>
+                        <div class="demo-output" id="streamResult">Stream results will appear here...</div>
+                        <div class="protocol-log" id="streamProtocolLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reflection-card full-width">
+                <h3 class="card-title">💡 Key Takeaways</h3>
+                <div class="highlight-box">
+                    <div class="highlight-title">Why Real-time Streaming is Crucial for AI:</div>
+                    <p>Modern AI applications require immediate feedback and progressive results. Whether it's streaming LLM responses, real-time data processing, or live system monitoring, MCP's native streaming eliminates the complexity of implementing separate protocols like WebSockets or Server-Sent Events.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Concept 4: Unified Protocol -->
+        <div class="concept-section" data-concept="4">
+            <div class="concept-header">
+                <div class="concept-number">4</div>
+                <h2 class="concept-title">Unified Protocol</h2>
+                <p class="concept-subtitle">Single JSON-RPC protocol for all operations and transport methods</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="overview-card">
+                    <h3 class="card-title">🎯 Concept Overview</h3>
+                    <p>MCP uses JSON-RPC 2.0 as a unified protocol for all operations, providing consistency across different transport methods and simplifying client implementation.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>JSON-RPC 2.0:</strong> Standardized message format</li>
+                        <li><strong>Transport Agnostic:</strong> Works over stdio, HTTP, WebSocket</li>
+                        <li><strong>Batch Operations:</strong> Multiple requests in one call</li>
+                        <li><strong>Error Handling:</strong> Standardized error responses</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 class="card-title">⚖️ MCP vs REST Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>MCP</th>
+                                <th>REST</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Protocol</strong></td>
+                                <td class="mcp-cell">Single JSON-RPC</td>
+                                <td class="rest-cell">HTTP verbs + JSON</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Transport</strong></td>
+                                <td class="mcp-cell">Multiple (stdio, HTTP, WS)</td>
+                                <td class="rest-cell">HTTP only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Batching</strong></td>
+                                <td class="mcp-cell">Native support</td>
+                                <td class="rest-cell">Custom implementation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Consistency</strong></td>
+                                <td class="mcp-cell">Unified format</td>
+                                <td class="rest-cell">Varies by endpoint</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="implementation-card">
+                    <h3 class="card-title">🛠️ Technical Implementation</h3>
+                    <div class="code-block">
+                        <div class="code-title">MCP Unified Format</div>
+<pre>// Tool call
+{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {"name": "calculator", "arguments": {"expr": "2+2"}},
+  "id": 1
+}
+
+// Resource read
+{
+  "jsonrpc": "2.0",
+  "method": "resources/read",
+  "params": {"uri": "file://data.txt"},
+  "id": 2
+}
+
+// Batch request
+[
+  {"jsonrpc": "2.0", "method": "tools/list", "id": 1},
+  {"jsonrpc": "2.0", "method": "resources/list", "id": 2}
+]</pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-title">REST Multiple Patterns</div>
+<pre>// Different verbs and patterns
+POST /api/tools/calculator
+{"expression": "2+2"}
+
+GET /api/files/data.txt
+
+// No standard batching
+POST /api/batch
+{
+  "requests": [
+    {"method": "GET", "url": "/api/tools"},
+    {"method": "GET", "url": "/api/files"}
+  ]
+}</pre>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3 class="card-title">🧪 Interactive Demo</h3>
+                    <div class="demo-container">
+                        <div class="demo-controls">
+                            <button class="demo-button" onclick="sendSingleRequest()">📝 Single Request</button>
+                            <button class="demo-button" onclick="sendBatchRequests()">📦 Batch Requests</button>
+                            <button class="demo-button" onclick="sendNotification()">📢 Notification</button>
+                        </div>
+                        <div class="demo-output" id="protocolOutput">Click a button to see JSON-RPC protocol in action...</div>
+                        <div class="protocol-log" id="protocolLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reflection-card full-width">
+                <h3 class="card-title">💡 Key Takeaways</h3>
+                <div class="highlight-box">
+                    <div class="highlight-title">Why Unified Protocol Simplifies AI Development:</div>
+                    <p>AI agents need to interact with many different services and APIs. MCP's unified JSON-RPC protocol means agents only need to understand one message format, regardless of the underlying transport or service type. This dramatically reduces the complexity of agent development and improves reliability.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Concept 5: Rich Error Handling -->
+        <div class="concept-section" data-concept="5">
+            <div class="concept-header">
+                <div class="concept-number">5</div>
+                <h2 class="concept-title">Rich Error Handling</h2>
+                <p class="concept-subtitle">Structured error responses with context and recovery suggestions</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="overview-card">
+                    <h3 class="card-title">🎯 Concept Overview</h3>
+                    <p>MCP provides comprehensive error handling with structured error responses, error codes, and contextual information to help AI agents understand and recover from failures.</p>
+                    <ul style="margin-top: 15px; padding-left: 20px;">
+                        <li><strong>Structured Errors:</strong> Consistent error format</li>
+                        <li><strong>Error Codes:</strong> Machine-readable error types</li>
+                        <li><strong>Context Data:</strong> Additional error information</li>
+                        <li><strong>Recovery Hints:</strong> Suggestions for error resolution</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-card">
+                    <h3 class="card-title">⚖️ MCP vs REST Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Aspect</th>
+                                <th>MCP</th>
+                                <th>REST</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Format</strong></td>
+                                <td class="mcp-cell">Structured JSON-RPC error</td>
+                                <td class="rest-cell">HTTP status + body</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Context</strong></td>
+                                <td class="mcp-cell">Rich error data included</td>
+                                <td class="rest-cell">Limited to HTTP headers</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Machine-readable</strong></td>
+                                <td class="mcp-cell">Error codes + structured data</td>
+                                <td class="rest-cell">HTTP status codes only</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recovery</strong></td>
+                                <td class="mcp-cell">Actionable error information</td>
+                                <td class="rest-cell">Generic error messages</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <div class="implementation-card">
+                    <h3 class="card-title">🛠️ Technical Implementation</h3>
+                    <div class="code-block">
+                        <div class="code-title">MCP Rich Error Response</div>
+<pre>{
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -32602,
+    "message": "Invalid params",
+    "data": {
+      "parameter": "expression",
+      "expected": "string",
+      "received": "number",
+      "suggestion": "Wrap the expression in quotes",
+      "examples": ["2 + 2", "sqrt(16)", "sin(pi/2)"]
+    }
+  },
+  "id": 1
+}</pre>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-title">REST Basic Error Response</div>
+<pre>HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": "Invalid input",
+  "message": "Bad request"
+}
+
+// Limited context, requires documentation lookup</pre>
+                    </div>
+                </div>
+                
+                <div class="demo-card">
+                    <h3 class="card-title">🧪 Interactive Demo</h3>
+                    <div class="demo-container">
+                        <div class="demo-controls">
+                            <button class="demo-button" onclick="triggerValidationError()">❌ Validation Error</button>
+                            <button class="demo-button" onclick="triggerRuntimeError()">⚠️ Runtime Error</button>
+                            <button class="demo-button" onclick="triggerTimeoutError()">⏱️ Timeout Error</button>
+                            <button class="demo-button" onclick="showSuccessResponse()">✅ Success Response</button>
+                        </div>
+                        <div class="demo-output" id="errorOutput">Click a button to see different error handling scenarios...</div>
+                        <div class="protocol-log" id="errorProtocolLog"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reflection-card full-width">
+                <h3 class="card-title">💡 Key Takeaways</h3>
+                <div class="highlight-box">
+                    <div class="highlight-title">Why Rich Error Handling is Essential for AI Agents:</div>
+                    <p>AI agents need to understand and recover from errors autonomously. MCP's structured error responses with context data, suggestions, and examples enable agents to self-correct and retry operations intelligently, rather than failing silently or requiring human intervention.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="concept-nav">
+            <div class="concept-nav-item active" onclick="showConcept(1)">1</div>
+            <div class="concept-nav-item" onclick="showConcept(2)">2</div>
+            <div class="concept-nav-item" onclick="showConcept(3)">3</div>
+            <div class="concept-nav-item" onclick="showConcept(4)">4</div>
+            <div class="concept-nav-item" onclick="showConcept(5)">5</div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevButton" onclick="previousConcept()" disabled>←</button>
+            <button class="nav-button" id="nextButton" onclick="nextConcept()">→</button>
+        </div>
+    </div>
+
+    <script>
+        let currentConcept = 1;
+        let simulatedCounter = 0;
+        let streamInterval = null;
+        
+        // Navigation functions
+        function showConcept(conceptNumber) {
+            // Hide all sections
+            document.querySelectorAll('.concept-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.querySelector(`[data-concept="${conceptNumber}"]`).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.concept-nav-item').forEach((item, index) => {
+                item.classList.toggle('active', index + 1 === conceptNumber);
+            });
+            
+            currentConcept = conceptNumber;
+            updateProgress();
+            updateNavigationButtons();
+        }
+        
+        function nextConcept() {
+            if (currentConcept < 5) {
+                showConcept(currentConcept + 1);
+            }
+        }
+        
+        function previousConcept() {
+            if (currentConcept > 1) {
+                showConcept(currentConcept - 1);
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (currentConcept / 5) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function updateNavigationButtons() {
+            document.getElementById('prevButton').disabled = currentConcept <= 1;
+            document.getElementById('nextButton').disabled = currentConcept >= 5;
+        }
+        
+        // Demo functions for Concept 1: Tools & Resources
+        function discoverTools() {
+            const output = document.getElementById('toolOutput');
+            const log = document.getElementById('toolProtocolLog');
+            
+            output.textContent = 'Discovering tools...';
+            
+            // Simulate discovery request
+            addProtocolLog(log, 'REQUEST', {
+                jsonrpc: "2.0",
+                method: "tools/list",
+                id: 1
+            });
+            
+            setTimeout(() => {
+                const response = {
+                    jsonrpc: "2.0",
+                    id: 1,
+                    result: {
+                        tools: [
+                            {
+                                name: "calculator",
+                                description: "Perform mathematical calculations",
+                                inputSchema: {
+                                    type: "object",
+                                    properties: {
+                                        expression: {
+                                            type: "string",
+                                            description: "Mathematical expression to evaluate"
+                                        }
+                                    },
+                                    required: ["expression"]
+                                }
+                            }
+                        ]
+                    }
+                };
+                
+                addProtocolLog(log, 'RESPONSE', response);
+                output.textContent = 'Discovered tools:\n\n1. calculator - Perform mathematical calculations\n   • Input: expression (string)\n   • Schema validation: automatic\n   • Ready for use!';
+            }, 1000);
+        }
+        
+        function callTool() {
+            const input = document.getElementById('toolInput');
+            const output = document.getElementById('toolOutput');
+            const log = document.getElementById('toolProtocolLog');
+            const expression = input.value;
+            
+            if (!expression) {
+                output.textContent = 'Please enter an expression to calculate.';
+                return;
+            }
+            
+            output.textContent = `Calling calculator tool with: "${expression}"`;
+            
+            // Simulate tool call request
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "calculator",
+                    arguments: {
+                        expression: expression
+                    }
+                },
+                id: 2
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                try {
+                    // Simple expression evaluation (unsafe for production)
+                    const result = eval(expression);
+                    const response = {
+                        jsonrpc: "2.0",
+                        id: 2,
+                        result: {
+                            content: [{
+                                type: "text",
+                                text: `${expression} = ${result}`
+                            }]
+                        }
+                    };
+                    
+                    addProtocolLog(log, 'RESPONSE', response);
+                    output.textContent = `✅ Calculation complete!\n\nExpression: ${expression}\nResult: ${result}\n\nMCP handled:\n• Schema validation\n• Type checking\n• Error handling\n• Result formatting`;
+                } catch (error) {
+                    const errorResponse = {
+                        jsonrpc: "2.0",
+                        id: 2,
+                        error: {
+                            code: -32000,
+                            message: "Calculation error",
+                            data: {
+                                expression: expression,
+                                error: error.message,
+                                suggestion: "Check expression syntax"
+                            }
+                        }
+                    };
+                    
+                    addProtocolLog(log, 'ERROR', errorResponse);
+                    output.textContent = `❌ Calculation failed\n\nExpression: ${expression}\nError: ${error.message}\n\nMCP provides structured error handling with suggestions for recovery.`;
+                }
+            }, 800);
+        }
+        
+        // Demo functions for Concept 2: Persistent State
+        function incrementCounter() {
+            const output = document.getElementById('stateOutput');
+            const log = document.getElementById('stateProtocolLog');
+            
+            output.textContent = 'Incrementing counter...';
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "increment_counter",
+                    arguments: {}
+                },
+                id: Date.now()
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                simulatedCounter++;
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [{
+                            type: "text",
+                            text: `Counter incremented to: ${simulatedCounter}`
+                        }]
+                    }
+                };
+                
+                addProtocolLog(log, 'RESPONSE', response);
+                output.textContent = `✅ Counter Value: ${simulatedCounter}\n\nState maintained in persistent MCP connection.\nNo need to pass counter value in each request!`;
+            }, 500);
+        }
+        
+        function getCounterValue() {
+            const output = document.getElementById('stateOutput');
+            const log = document.getElementById('stateProtocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "get_counter",
+                    arguments: {}
+                },
+                id: Date.now()
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [{
+                            type: "text",
+                            text: `Current counter value: ${simulatedCounter}`
+                        }]
+                    }
+                };
+                
+                addProtocolLog(log, 'RESPONSE', response);
+                output.textContent = `📊 Current Counter: ${simulatedCounter}\n\nServer state persisted across calls.\nConnection maintained automatically.`;
+            }, 300);
+        }
+        
+        function resetCounter() {
+            const output = document.getElementById('stateOutput');
+            const log = document.getElementById('stateProtocolLog');
+            
+            simulatedCounter = 0;
+            output.textContent = `🔄 Counter Reset: ${simulatedCounter}\n\nPersistent state updated.\nAll future calls will see the new value.`;
+            
+            const notification = {
+                jsonrpc: "2.0",
+                method: "notifications/state_changed",
+                params: {
+                    counter: simulatedCounter,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            addProtocolLog(log, 'NOTIFICATION', notification);
+        }
+        
+        // Demo functions for Concept 3: Streaming
+        function startCountdown() {
+            const input = document.getElementById('countdownInput');
+            const streamOutput = document.getElementById('streamOutput');
+            const resultOutput = document.getElementById('streamResult');
+            const log = document.getElementById('streamProtocolLog');
+            const stopButton = document.getElementById('stopButton');
+            
+            const count = parseInt(input.value) || 10;
+            let current = count;
+            
+            if (streamInterval) clearInterval(streamInterval);
+            
+            stopButton.disabled = false;
+            streamOutput.textContent = 'Starting countdown stream...';
+            resultOutput.textContent = 'Streaming in progress...';
+            
+            // Initial request
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "countdown",
+                    arguments: { from: count }
+                },
+                id: Date.now()
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            streamInterval = setInterval(() => {
+                if (current > 0) {
+                    const streamData = {
+                        jsonrpc: "2.0",
+                        method: "notifications/stream",
+                        params: {
+                            type: "progress",
+                            data: {
+                                count: current,
+                                remaining: current - 1,
+                                percentage: Math.round(((count - current + 1) / count) * 100)
+                            }
+                        }
+                    };
+                    
+                    addProtocolLog(log, 'STREAM', streamData);
+                    streamOutput.textContent = `🔄 Streaming: ${current}\nRemaining: ${current - 1}\nProgress: ${Math.round(((count - current + 1) / count) * 100)}%`;
+                    current--;
+                } else {
+                    clearInterval(streamInterval);
+                    streamInterval = null;
+                    stopButton.disabled = true;
+                    
+                    const finalResponse = {
+                        jsonrpc: "2.0",
+                        id: request.id,
+                        result: {
+                            content: [{
+                                type: "text",
+                                text: "Countdown completed!"
+                            }]
+                        }
+                    };
+                    
+                    addProtocolLog(log, 'RESPONSE', finalResponse);
+                    streamOutput.textContent = '🎯 Countdown Complete!';
+                    resultOutput.textContent = `✅ Streaming finished!\n\nTotal updates: ${count}\nReal-time progress delivered\nNo polling required!`;
+                }
+            }, 1000);
+        }
+        
+        function stopStream() {
+            if (streamInterval) {
+                clearInterval(streamInterval);
+                streamInterval = null;
+                document.getElementById('stopButton').disabled = true;
+                document.getElementById('streamOutput').textContent = '⏹️ Stream stopped by user';
+                document.getElementById('streamResult').textContent = 'Stream cancelled.';
+            }
+        }
+        
+        // Demo functions for Concept 4: Unified Protocol
+        function sendSingleRequest() {
+            const output = document.getElementById('protocolOutput');
+            const log = document.getElementById('protocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/list",
+                id: 1
+            };
+            
+            output.textContent = 'Sending single JSON-RPC request...';
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const response = {
+                    jsonrpc: "2.0",
+                    id: 1,
+                    result: {
+                        tools: [
+                            { name: "calculator", description: "Math operations" },
+                            { name: "file_reader", description: "Read files" }
+                        ]
+                    }
+                };
+                
+                addProtocolLog(log, 'RESPONSE', response);
+                output.textContent = '✅ Single request completed!\n\nConsistent JSON-RPC format across all operations.\nSame structure for all MCP operations.';
+            }, 600);
+        }
+        
+        function sendBatchRequests() {
+            const output = document.getElementById('protocolOutput');
+            const log = document.getElementById('protocolLog');
+            
+            const batchRequest = [
+                { jsonrpc: "2.0", method: "tools/list", id: 1 },
+                { jsonrpc: "2.0", method: "resources/list", id: 2 },
+                { jsonrpc: "2.0", method: "prompts/list", id: 3 }
+            ];
+            
+            output.textContent = 'Sending batch JSON-RPC requests...';
+            addProtocolLog(log, 'BATCH_REQUEST', batchRequest);
+            
+            setTimeout(() => {
+                const batchResponse = [
+                    {
+                        jsonrpc: "2.0",
+                        id: 1,
+                        result: { tools: [{ name: "calculator" }] }
+                    },
+                    {
+                        jsonrpc: "2.0",
+                        id: 2,
+                        result: { resources: [{ uri: "file://data.txt" }] }
+                    },
+                    {
+                        jsonrpc: "2.0",
+                        id: 3,
+                        result: { prompts: [{ name: "greeting" }] }
+                    }
+                ];
+                
+                addProtocolLog(log, 'BATCH_RESPONSE', batchResponse);
+                output.textContent = '✅ Batch requests completed!\n\n3 operations in single network round-trip.\nEfficient and consistent protocol handling.';
+            }, 1000);
+        }
+        
+        function sendNotification() {
+            const output = document.getElementById('protocolOutput');
+            const log = document.getElementById('protocolLog');
+            
+            const notification = {
+                jsonrpc: "2.0",
+                method: "notifications/status_update",
+                params: {
+                    status: "active",
+                    timestamp: new Date().toISOString(),
+                    message: "System operational"
+                }
+            };
+            
+            output.textContent = 'Sending notification (no response expected)...';
+            addProtocolLog(log, 'NOTIFICATION', notification);
+            
+            setTimeout(() => {
+                output.textContent = '📢 Notification sent!\n\nOne-way message using same JSON-RPC format.\nNo response expected or required.';
+            }, 400);
+        }
+        
+        // Demo functions for Concept 5: Rich Error Handling
+        function triggerValidationError() {
+            const output = document.getElementById('errorOutput');
+            const log = document.getElementById('errorProtocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "calculator",
+                    arguments: {
+                        expression: 123  // Wrong type - should be string
+                    }
+                },
+                id: 1
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const errorResponse = {
+                    jsonrpc: "2.0",
+                    error: {
+                        code: -32602,
+                        message: "Invalid params",
+                        data: {
+                            parameter: "expression",
+                            expected: "string",
+                            received: "number",
+                            value: 123,
+                            suggestion: "Wrap the expression in quotes",
+                            examples: ["2 + 2", "sqrt(16)", "sin(pi/2)"]
+                        }
+                    },
+                    id: 1
+                };
+                
+                addProtocolLog(log, 'ERROR', errorResponse);
+                output.innerHTML = '<div class="error-output">❌ Validation Error\n\nParameter: expression\nExpected: string\nReceived: number (123)\n\nSuggestion: Wrap the expression in quotes\nExamples: "2 + 2", "sqrt(16)", "sin(pi/2)"\n\nRich context helps AI agents understand and fix the error!</div>';
+            }, 600);
+        }
+        
+        function triggerRuntimeError() {
+            const output = document.getElementById('errorOutput');
+            const log = document.getElementById('errorProtocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "file_reader",
+                    arguments: { path: "/nonexistent/file.txt" }
+                },
+                id: 2
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const errorResponse = {
+                    jsonrpc: "2.0",
+                    error: {
+                        code: -32000,
+                        message: "File not found",
+                        data: {
+                            path: "/nonexistent/file.txt",
+                            error_type: "FileNotFoundError",
+                            suggestions: [
+                                "Check if the file path is correct",
+                                "Verify file permissions",
+                                "Use resources/list to see available files"
+                            ],
+                            available_paths: [
+                                "/data/sample.txt",
+                                "/config/settings.json"
+                            ]
+                        }
+                    },
+                    id: 2
+                };
+                
+                addProtocolLog(log, 'ERROR', errorResponse);
+                output.innerHTML = '<div class="error-output">❌ Runtime Error\n\nFile: /nonexistent/file.txt\nError: FileNotFoundError\n\nSuggestions:\n• Check if the file path is correct\n• Verify file permissions\n• Use resources/list to see available files\n\nAvailable files:\n• /data/sample.txt\n• /config/settings.json\n\nActionable error information for automated recovery!</div>';
+            }, 800);
+        }
+        
+        function triggerTimeoutError() {
+            const output = document.getElementById('errorOutput');
+            const log = document.getElementById('errorProtocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "slow_operation",
+                    arguments: { duration: 30 }
+                },
+                id: 3
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const errorResponse = {
+                    jsonrpc: "2.0",
+                    error: {
+                        code: -32001,
+                        message: "Operation timeout",
+                        data: {
+                            timeout_seconds: 10,
+                            requested_duration: 30,
+                            elapsed_time: 10.234,
+                            retry_possible: true,
+                            backoff_strategy: "exponential",
+                            next_retry_delay: 2000,
+                            max_retries: 3,
+                            alternative_methods: ["async_operation", "batch_process"]
+                        }
+                    },
+                    id: 3
+                };
+                
+                addProtocolLog(log, 'ERROR', errorResponse);
+                output.innerHTML = '<div class="error-output">❌ Timeout Error\n\nTimeout: 10 seconds\nRequested: 30 seconds\nElapsed: 10.234s\n\nRetry Info:\n• Retry possible: Yes\n• Strategy: exponential backoff\n• Next delay: 2000ms\n• Max retries: 3\n\nAlternatives:\n• async_operation\n• batch_process\n\nComplete error context enables intelligent retry strategies!</div>';
+            }, 1200);
+        }
+        
+        function showSuccessResponse() {
+            const output = document.getElementById('errorOutput');
+            const log = document.getElementById('errorProtocolLog');
+            
+            const request = {
+                jsonrpc: "2.0",
+                method: "tools/call",
+                params: {
+                    name: "health_check",
+                    arguments: {}
+                },
+                id: 4
+            };
+            
+            addProtocolLog(log, 'REQUEST', request);
+            
+            setTimeout(() => {
+                const response = {
+                    jsonrpc: "2.0",
+                    id: 4,
+                    result: {
+                        content: [{
+                            type: "text",
+                            text: "System healthy"
+                        }],
+                        metadata: {
+                            execution_time: 0.045,
+                            server_load: 0.23,
+                            memory_usage: "45%",
+                            uptime: "2h 15m"
+                        }
+                    }
+                };
+                
+                addProtocolLog(log, 'RESPONSE', response);
+                output.innerHTML = '<div class="success-output">✅ Success Response\n\nResult: System healthy\nExecution time: 0.045s\nServer load: 0.23\nMemory usage: 45%\nUptime: 2h 15m\n\nRich metadata included in successful responses too!</div>';
+            }, 400);
+        }
+        
+        // Helper function to add protocol logs
+        function addProtocolLog(logElement, type, data) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            let typeLabel = type;
+            let typeColor = '#3498db';
+            
+            switch (type) {
+                case 'REQUEST':
+                    typeColor = '#3498db';
+                    break;
+                case 'RESPONSE':
+                    typeColor = '#27ae60';
+                    break;
+                case 'ERROR':
+                    typeColor = '#e74c3c';
+                    break;
+                case 'STREAM':
+                    typeColor = '#f39c12';
+                    break;
+                case 'NOTIFICATION':
+                    typeColor = '#9b59b6';
+                    break;
+                case 'BATCH_REQUEST':
+                    typeLabel = 'BATCH REQ';
+                    typeColor = '#3498db';
+                    break;
+                case 'BATCH_RESPONSE':
+                    typeLabel = 'BATCH RESP';
+                    typeColor = '#27ae60';
+                    break;
+            }
+            
+            logEntry.innerHTML = `
+                <div class="log-timestamp" style="color: ${typeColor};">[${timestamp}] ${typeLabel}</div>
+                <pre style="margin-top: 5px; white-space: pre-wrap; font-size: 0.85em;">${JSON.stringify(data, null, 2)}</pre>
+            `;
+            
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextConcept();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                previousConcept();
+            } else if (e.key >= '1' && e.key <= '5') {
+                e.preventDefault();
+                showConcept(parseInt(e.key));
+            }
+        });
+        
+        // Initialize
+        updateProgress();
+        updateNavigationButtons();
+    </script>
+</body>
+</html>

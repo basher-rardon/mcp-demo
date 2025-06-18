@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Comprehensive Playground - Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 2.8em; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.2em; }
+        
+        .demo-banner {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .status-bar {
+            background: #ecf0f1;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #bdc3c7;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 400px;
+            min-height: 800px;
+        }
+        
+        .panel {
+            padding: 30px;
+            border-right: 1px solid #ecf0f1;
+            overflow-y: auto;
+            max-height: 800px;
+        }
+        
+        .panel:last-child { border-right: none; }
+        
+        .panel-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3); }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInUp 0.6s ease forwards;
+        }
+        
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        @keyframes slideInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            border-color: #3498db;
+        }
+        
+        .feature-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .feature-category {
+            background: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .category-basic { background: #27ae60; }
+        .category-error { background: #e74c3c; }
+        .category-streaming { background: #f39c12; }
+        .category-stateful { background: #9b59b6; }
+        .category-introspection { background: #34495e; }
+        .category-time { background: #16a085; }
+        .category-large { background: #d35400; }
+        .category-binary { background: #8e44ad; }
+        .category-templates { background: #2980b9; }
+        
+        .feature-description {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .params-input {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            width: 100%;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .test-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .test-btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+        
+        .result-area {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+        
+        .result-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .result-streaming {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        
+        .logs-container {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 12px;
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+        }
+        
+        .log-entry {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid;
+            animation: slideIn 0.4s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .log-request { border-left-color: #3498db; background: rgba(52, 152, 219, 0.15); }
+        .log-response { border-left-color: #27ae60; background: rgba(39, 174, 96, 0.15); }
+        .log-error { border-left-color: #e74c3c; background: rgba(231, 76, 60, 0.15); }
+        .log-stream { border-left-color: #f39c12; background: rgba(243, 156, 18, 0.15); }
+        
+        .log-timestamp {
+            color: #95a5a6;
+            font-size: 0.8em;
+            margin-bottom: 6px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #ecf0f1;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #2c3e50;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .summary-stats {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+        
+        .export-btn {
+            background: #e67e22;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-left: 12px;
+            font-weight: 600;
+        }
+        
+        .export-btn:hover {
+            background: #d35400;
+            transform: translateY(-1px);
+        }
+        
+        .testing-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideInUp 0.5s ease forwards;
+        }
+        
+        .testing-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .testing-icon {
+            font-size: 2em;
+        }
+        
+        .testing-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .testing-category {
+            background: #3498db;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .testing-description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .parameter-section {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .parameter-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .parameter-input {
+            width: 100%;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            background: #f8f9fa;
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .execute-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+        
+        .execute-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .response-section {
+            margin-top: 20px;
+        }
+        
+        .response-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .response-title {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .response-time {
+            background: #ecf0f1;
+            color: #7f8c8d;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-family: monospace;
+        }
+        
+        .json-viewer {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .json-key { color: #3498db; }
+        .json-string { color: #2ecc71; }
+        .json-number { color: #e74c3c; }
+        .json-boolean { color: #f39c12; }
+        .json-null { color: #95a5a6; }
+        
+        .status-indicator-response {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-streaming {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        
+        .copy-btn:hover {
+            background: #5a6268;
+        }
+        
+        .stream-output {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            color: #856404;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #27ae60;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .log-operation {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+        
+        .log-details {
+            color: #ecf0f1;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .log-technical {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid #34495e;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.8em;
+        }
+        
+        .log-technical pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .toggle-technical-btn {
+            background: #34495e;
+            color: #ecf0f1;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+        
+        .toggle-technical-btn:hover {
+            background: #4a6741;
+        }
+        
+        .tool-name, .resource-name, .prompt-name {
+            background: rgba(52, 152, 219, 0.3);
+            color: #3498db;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .param-key, .arg-key {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .param-value, .arg-value {
+            color: #2ecc71;
+            font-family: monospace;
+        }
+        
+        .result-text {
+            color: #2ecc71;
+            font-weight: 600;
+            background: rgba(46, 204, 113, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .error-text {
+            color: #e74c3c;
+            font-weight: 600;
+            background: rgba(231, 76, 60, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .resource-uri {
+            color: #f39c12;
+            font-family: monospace;
+            background: rgba(243, 156, 18, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .content-preview {
+            color: #95a5a6;
+            font-style: italic;
+        }
+        
+        .prompt-text {
+            color: #9b59b6;
+            font-weight: 600;
+            background: rgba(155, 89, 182, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .stream-count {
+            color: #f39c12;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="demo-banner">
+            🎭 COMPREHENSIVE MCP PLAYGROUND DEMO - Shows all major MCP features with interactive testing
+        </div>
+        
+        <div class="header">
+            <h1>🎮 MCP Comprehensive Playground</h1>
+            <p>Complete Testing Environment for Model Context Protocol</p>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Demo Mode - Simulated MCP Server Responses</span>
+            </div>
+            <div>
+                <button class="btn" onclick="discoverFeatures()">🔍 Discover All Features</button>
+                <button class="export-btn" onclick="exportLogs()">📁 Export Logs</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Features Panel -->
+            <div class="panel">
+                <h2 class="panel-title">🛠️ Available Features</h2>
+                
+                <div class="summary-stats" id="summaryStats" style="display: none;">
+                    <div class="stat-item">
+                        <div class="stat-number" id="toolCount">5</div>
+                        <div class="stat-label">Tools</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="resourceCount">3</div>
+                        <div class="stat-label">Resources</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="promptCount">1</div>
+                        <div class="stat-label">Prompts</div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('tools')">Tools</button>
+                    <button class="tab" onclick="switchTab('resources')">Resources</button>
+                    <button class="tab" onclick="switchTab('prompts')">Prompts</button>
+                </div>
+                
+                <div id="tools-content" class="tab-content active">
+                    <div id="toolsList">
+                        <p>Click "🔍 Discover All Features" to load comprehensive MCP tools...</p>
+                    </div>
+                </div>
+                
+                <div id="resources-content" class="tab-content">
+                    <div id="resourcesList">
+                        <p>Click "🔍 Discover All Features" to load MCP resources...</p>
+                    </div>
+                </div>
+                
+                <div id="prompts-content" class="tab-content">
+                    <div id="promptsList">
+                        <p>Click "🔍 Discover All Features" to load MCP prompts...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testing Panel -->
+            <div class="panel">
+                <h2 class="panel-title">🧪 Testing & Results</h2>
+                <div id="testingArea">
+                    <div style="text-align: center; padding: 40px; color: #7f8c8d;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🎯</div>
+                        <p>Select any feature from the left panel to test it here.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">All MCP operations will be logged in real-time!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Logs Panel -->
+            <div class="panel">
+                <h2 class="panel-title">📊 Communication Logs</h2>
+                <button class="btn" onclick="clearLogs()">🗑️ Clear Logs</button>
+                <div class="logs-container" id="logsContainer">
+                    <div style="text-align: center; padding: 40px; color: #95a5a6;">
+                        <div style="font-size: 2em; margin-bottom: 10px;">📝</div>
+                        <p>MCP JSON-RPC communication logs will appear here...</p>
+                        <p style="margin-top: 8px; font-size: 0.9em;">Complete request/response tracking with timestamps</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logCounter = 0;
+        
+        const comprehensiveFeatures = {
+            tools: [
+                {
+                    name: "add",
+                    description: "Add two numbers together - demonstrates basic tool functionality and parameter validation",
+                    category: "Basic",
+                    inputSchema: {
+                        type: "object",
+                        properties: {
+                            a: { type: "integer", description: "First number" },
+                            b: { type: "integer", description: "Second number" }
+                        },
+                        required: ["a", "b"]
+                    }
+                },
+                {
+                    name: "fail_on_purpose",
+                    description: "Always fails with custom message - demonstrates comprehensive error handling in MCP",
+                    category: "Error Handling",
+                    inputSchema: {
+                        type: "object",
+                        properties: {
+                            message: { type: "string", description: "Custom error message", default: "Intentional test error" }
+                        }
+                    }
+                },
+                {
+                    name: "countdown",
+                    description: "Stream countdown from N to 1 - demonstrates real-time streaming responses",
+                    category: "Streaming",
+                    inputSchema: {
+                        type: "object",
+                        properties: {
+                            n: { type: "integer", description: "Number to count down from", minimum: 1, maximum: 10, default: 5 }
+                        },
+                        required: ["n"]
+                    }
+                },
+                {
+                    name: "increment_counter",
+                    description: "Increment persistent server-side counter - demonstrates stateful operations",
+                    category: "Stateful",
+                    inputSchema: { type: "object", properties: {} }
+                },
+                {
+                    name: "get_server_info",
+                    description: "Get comprehensive server information - demonstrates introspection capabilities",
+                    category: "Introspection",
+                    inputSchema: { type: "object", properties: {} }
+                }
+            ],
+            resources: [
+                {
+                    uri: "time://current",
+                    name: "Current Server Time",
+                    description: "Returns real-time server timestamp in ISO format - demonstrates dynamic content",
+                    mimeType: "text/plain",
+                    category: "Time-based"
+                },
+                {
+                    uri: "data://big_text",
+                    name: "Large Text Data (10KB+)",
+                    description: "Returns large text string for context window testing - demonstrates large data handling",
+                    mimeType: "text/plain",
+                    category: "Large Data"
+                },
+                {
+                    uri: "image://tiny_png_base64",
+                    name: "Tiny PNG Image (Base64)",
+                    description: "Returns small PNG image encoded as base64 - demonstrates binary data handling",
+                    mimeType: "image/png",
+                    category: "Binary Data"
+                }
+            ],
+            prompts: [
+                {
+                    name: "prompt_greet",
+                    description: "Generate personalized greeting prompt template - demonstrates dynamic prompt generation",
+                    category: "Templates",
+                    arguments: [
+                        { name: "name", description: "Name of person to greet", required: true }
+                    ]
+                }
+            ]
+        };
+        
+        function addLogEntry(type, operation, details) {
+            const logsContainer = document.getElementById('logsContainer');
+            
+            // Remove empty state if present
+            if (logsContainer.children.length === 1 && logsContainer.textContent.includes('will appear here')) {
+                logsContainer.innerHTML = '';
+            }
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const humanReadableLog = formatLogForHumans(type, operation, details);
+            
+            logEntry.innerHTML = `
+                <div class="log-timestamp">🕐 ${timestamp}</div>
+                <div class="log-operation">${humanReadableLog.title}</div>
+                <div class="log-details">${humanReadableLog.details}</div>
+                ${humanReadableLog.technical ? `<div class="log-technical" style="display: none;">${humanReadableLog.technical}</div>` : ''}
+                ${humanReadableLog.technical ? '<button class="toggle-technical-btn" onclick="toggleTechnical(this)">🔍 Show Technical Details</button>' : ''}
+            `;
+            
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+            logCounter++;
+        }
+        
+        function formatLogForHumans(type, operation, details) {
+            const result = {
+                title: '',
+                details: '',
+                technical: ''
+            };
+            
+            const time = new Date().toLocaleTimeString();
+            
+            // Format based on operation type
+            if (operation.includes('Discovery:')) {
+                if (operation.includes('tools/list')) {
+                    if (type === 'request') {
+                        result.title = '🔍 <strong>Discovering Available Tools</strong>';
+                        result.details = 'Asking the server: "What tools do you have available?"';
+                    } else {
+                        const toolCount = details.result?.tools?.length || 0;
+                        result.title = `✅ <strong>Found ${toolCount} Tools</strong>`;
+                        result.details = `Server responded with: ${details.result?.tools?.map(t => `<span class="tool-name">${t.name}</span>`).join(', ') || 'No tools'}`;
+                    }
+                } else if (operation.includes('resources/list')) {
+                    if (type === 'request') {
+                        result.title = '📦 <strong>Discovering Available Resources</strong>';
+                        result.details = 'Asking the server: "What resources can I access?"';
+                    } else {
+                        const resourceCount = details.result?.resources?.length || 0;
+                        result.title = `✅ <strong>Found ${resourceCount} Resources</strong>`;
+                        result.details = `Server responded with: ${details.result?.resources?.map(r => `<span class="resource-name">${r.name || r.uri}</span>`).join(', ') || 'No resources'}`;
+                    }
+                } else if (operation.includes('prompts/list')) {
+                    if (type === 'request') {
+                        result.title = '💬 <strong>Discovering Available Prompts</strong>';
+                        result.details = 'Asking the server: "What prompt templates do you have?"';
+                    } else {
+                        const promptCount = details.result?.prompts?.length || 0;
+                        result.title = `✅ <strong>Found ${promptCount} Prompts</strong>`;
+                        result.details = `Server responded with: ${details.result?.prompts?.map(p => `<span class="prompt-name">${p.name}</span>`).join(', ') || 'No prompts'}`;
+                    }
+                }
+            }
+            
+            else if (operation.includes('Tool Call:')) {
+                const toolName = operation.split(': ')[1];
+                if (type === 'request') {
+                    result.title = `🛠️ <strong>Calling Tool: ${toolName}</strong>`;
+                    const params = details.params?.arguments || {};
+                    if (Object.keys(params).length > 0) {
+                        const paramList = Object.entries(params).map(([key, value]) => 
+                            `<span class="param-key">${key}</span>: <span class="param-value">${JSON.stringify(value)}</span>`
+                        ).join(', ');
+                        result.details = `With parameters: ${paramList}`;
+                    } else {
+                        result.details = 'With no parameters';
+                    }
+                } else if (type === 'response') {
+                    result.title = `✅ <strong>Tool "${toolName}" Completed Successfully</strong>`;
+                    const content = details.result?.content?.[0]?.text || 'No response content';
+                    result.details = `Result: <span class="result-text">${content}</span>`;
+                } else if (type === 'error') {
+                    result.title = `❌ <strong>Tool "${toolName}" Failed</strong>`;
+                    const errorMsg = details.error?.message || 'Unknown error';
+                    result.details = `Error: <span class="error-text">${errorMsg}</span>`;
+                }
+            }
+            
+            else if (operation.includes('Resource Read:')) {
+                const resourceUri = operation.split(': ')[1];
+                if (type === 'request') {
+                    result.title = `📖 <strong>Reading Resource</strong>`;
+                    result.details = `Requesting content from: <span class="resource-uri">${resourceUri}</span>`;
+                } else {
+                    result.title = `✅ <strong>Resource Read Successfully</strong>`;
+                    const content = details.result?.contents?.[0]?.text || 'No content';
+                    const contentPreview = content.length > 100 ? content.substring(0, 100) + '...' : content;
+                    result.details = `Content received (${content.length} characters): <span class="content-preview">${contentPreview}</span>`;
+                }
+            }
+            
+            else if (operation.includes('Prompt Generation:')) {
+                const promptName = operation.split(': ')[1];
+                if (type === 'request') {
+                    result.title = `💬 <strong>Generating Prompt: ${promptName}</strong>`;
+                    const args = details.params?.arguments || {};
+                    if (Object.keys(args).length > 0) {
+                        const argList = Object.entries(args).map(([key, value]) => 
+                            `<span class="arg-key">${key}</span>: <span class="arg-value">${JSON.stringify(value)}</span>`
+                        ).join(', ');
+                        result.details = `With arguments: ${argList}`;
+                    } else {
+                        result.details = 'With no arguments';
+                    }
+                } else {
+                    result.title = `✅ <strong>Prompt "${promptName}" Generated</strong>`;
+                    const promptText = details.result?.messages?.[0]?.content?.text || 'No prompt text';
+                    result.details = `Generated prompt: <span class="prompt-text">"${promptText}"</span>`;
+                }
+            }
+            
+            else if (operation.includes('Stream:')) {
+                const toolName = operation.split(': ')[1];
+                result.title = `🔄 <strong>Streaming from ${toolName}</strong>`;
+                const streamData = details.data || details;
+                if (streamData.count !== undefined) {
+                    result.details = `Countdown: <span class="stream-count">${streamData.count}</span> (${streamData.remaining} remaining)`;
+                } else {
+                    result.details = `Stream data: ${JSON.stringify(streamData)}`;
+                }
+            }
+            
+            else if (operation.includes('Server')) {
+                if (operation.includes('Initialization')) {
+                    result.title = '🚀 <strong>Server Starting Up</strong>';
+                    result.details = 'MCP Playground Server is initializing all features...';
+                } else if (operation.includes('Ready')) {
+                    result.title = '✅ <strong>Server Ready</strong>';
+                    result.details = 'All MCP capabilities loaded and ready for testing!';
+                }
+            }
+            
+            // If no specific formatting matched, use generic format
+            if (!result.title) {
+                result.title = `📋 <strong>${operation}</strong>`;
+                result.details = 'See technical details below for full information';
+            }
+            
+            // Always include technical details for developers
+            result.technical = `<strong>Technical Details:</strong><pre>${JSON.stringify(details, null, 2)}</pre>`;
+            
+            return result;
+        }
+        
+        function toggleTechnical(button) {
+            const technicalDiv = button.previousElementSibling;
+            if (technicalDiv.style.display === 'none') {
+                technicalDiv.style.display = 'block';
+                button.textContent = '🙈 Hide Technical Details';
+            } else {
+                technicalDiv.style.display = 'none';
+                button.textContent = '🔍 Show Technical Details';
+            }
+        }
+        
+        function discoverFeatures() {
+            // Show discovery request
+            addLogEntry('request', 'Discovery: tools/list', {
+                jsonrpc: "2.0",
+                id: 1,
+                method: "tools/list",
+                params: {}
+            });
+            
+            setTimeout(() => {
+                // Show discovery response
+                addLogEntry('response', 'Discovery: tools/list result', {
+                    jsonrpc: "2.0",
+                    id: 1,
+                    result: {
+                        tools: comprehensiveFeatures.tools.map(t => ({ name: t.name, description: t.description }))
+                    }
+                });
+                
+                displayFeatures();
+                document.getElementById('summaryStats').style.display = 'block';
+            }, 800);
+            
+            setTimeout(() => {
+                addLogEntry('request', 'Discovery: resources/list', {
+                    jsonrpc: "2.0",
+                    id: 2,
+                    method: "resources/list",
+                    params: {}
+                });
+            }, 1200);
+            
+            setTimeout(() => {
+                addLogEntry('response', 'Discovery: resources/list result', {
+                    jsonrpc: "2.0",
+                    id: 2,
+                    result: {
+                        resources: comprehensiveFeatures.resources.map(r => ({ uri: r.uri, name: r.name }))
+                    }
+                });
+            }, 1600);
+            
+            setTimeout(() => {
+                addLogEntry('request', 'Discovery: prompts/list', {
+                    jsonrpc: "2.0",
+                    id: 3,
+                    method: "prompts/list",
+                    params: {}
+                });
+            }, 2000);
+            
+            setTimeout(() => {
+                addLogEntry('response', 'Discovery: prompts/list result', {
+                    jsonrpc: "2.0",
+                    id: 3,
+                    result: {
+                        prompts: comprehensiveFeatures.prompts.map(p => ({ name: p.name, description: p.description }))
+                    }
+                });
+            }, 2400);
+        }
+        
+        function displayFeatures() {
+            displayTools(comprehensiveFeatures.tools);
+            displayResources(comprehensiveFeatures.resources);
+            displayPrompts(comprehensiveFeatures.prompts);
+        }
+        
+        function displayTools(tools) {
+            const toolsList = document.getElementById('toolsList');
+            toolsList.innerHTML = tools.map(tool => `
+                <div class="feature-card">
+                    <div class="feature-name">${tool.name}</div>
+                    <div class="feature-category category-${tool.category.toLowerCase().replace(' ', '')}">${tool.category}</div>
+                    <div class="feature-description">${tool.description}</div>
+                    <textarea class="params-input" id="params-${tool.name}" 
+                              placeholder="Enter JSON parameters">${getDefaultParams(tool.inputSchema)}</textarea>
+                    <button class="test-btn" onclick="loadFeatureForTesting('tool', '${tool.name}')">🔬 Load for Testing</button>
+                    <button class="test-btn" onclick="testTool('${tool.name}')" style="margin-left: 10px;">🧪 Quick Test</button>
+                    <div id="result-${tool.name}" class="result-area" style="display: none;"></div>
+                </div>
+            `).join('');
+        }
+        
+        function displayResources(resources) {
+            const resourcesList = document.getElementById('resourcesList');
+            resourcesList.innerHTML = resources.map(resource => `
+                <div class="feature-card">
+                    <div class="feature-name">${resource.name}</div>
+                    <div class="feature-category category-${resource.category.toLowerCase().replace(' ', '')}">${resource.category}</div>
+                    <div class="feature-description">${resource.description}</div>
+                    <div><strong>URI:</strong> <code>${resource.uri}</code></div>
+                    <div><strong>MIME Type:</strong> <code>${resource.mimeType}</code></div>
+                    <br>
+                    <button class="test-btn" onclick="loadFeatureForTesting('resource', '${resource.uri}')">🔬 Load for Testing</button>
+                    <button class="test-btn" onclick="testResource('${resource.uri}')" style="margin-left: 10px;">📦 Quick Read</button>
+                    <div id="result-${resource.uri.replace(/[^a-zA-Z0-9]/g, '_')}" class="result-area" style="display: none;"></div>
+                </div>
+            `).join('');
+        }
+        
+        function displayPrompts(prompts) {
+            const promptsList = document.getElementById('promptsList');
+            promptsList.innerHTML = prompts.map(prompt => `
+                <div class="feature-card">
+                    <div class="feature-name">${prompt.name}</div>
+                    <div class="feature-category category-${prompt.category.toLowerCase()}">${prompt.category}</div>
+                    <div class="feature-description">${prompt.description}</div>
+                    <textarea class="params-input" id="prompt-params-${prompt.name}" 
+                              placeholder="Enter arguments JSON">${getPromptDefaults(prompt)}</textarea>
+                    <button class="test-btn" onclick="loadFeatureForTesting('prompt', '${prompt.name}')">🔬 Load for Testing</button>
+                    <button class="test-btn" onclick="testPrompt('${prompt.name}')" style="margin-left: 10px;">💬 Quick Generate</button>
+                    <div id="result-${prompt.name}" class="result-area" style="display: none;"></div>
+                </div>
+            `).join('');
+        }
+        
+        function getDefaultParams(schema) {
+            if (!schema || !schema.properties) return '{}';
+            
+            const defaults = {};
+            Object.keys(schema.properties).forEach(key => {
+                const prop = schema.properties[key];
+                if (key === 'a') defaults[key] = 15;
+                else if (key === 'b') defaults[key] = 27;
+                else if (key === 'n') defaults[key] = 5;
+                else if (key === 'message') defaults[key] = "Custom test error message";
+            });
+            
+            return JSON.stringify(defaults, null, 2);
+        }
+        
+        function getPromptDefaults(prompt) {
+            const defaults = {};
+            prompt.arguments.forEach(arg => {
+                if (arg.name === 'name') defaults[arg.name] = 'Alice';
+            });
+            return JSON.stringify(defaults, null, 2);
+        }
+        
+        async function testTool(toolName) {
+            const paramsInput = document.getElementById(`params-${toolName}`);
+            let parameters = {};
+            
+            try {
+                parameters = JSON.parse(paramsInput.value || '{}');
+            } catch (e) {
+                showResult(toolName, 'Invalid JSON parameters', 'error');
+                return;
+            }
+            
+            // Log the request
+            addLogEntry('request', `Tool Call: ${toolName}`, {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "tools/call",
+                params: {
+                    name: toolName,
+                    arguments: parameters
+                }
+            });
+            
+            showResult(toolName, 'Executing...', 'streaming');
+            
+            // Simulate different tool behaviors
+            if (toolName === 'add') {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const result = (parameters.a || 0) + (parameters.b || 0);
+                const response = `Adding ${parameters.a} + ${parameters.b} = ${result}`;
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, {
+                    jsonrpc: "2.0",
+                    id: Date.now(),
+                    result: { content: [{ type: "text", text: response }] }
+                });
+                
+                showResult(toolName, response, 'success');
+                
+            } else if (toolName === 'fail_on_purpose') {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const errorMsg = parameters.message || "Intentional test error";
+                
+                addLogEntry('error', `Tool Error: ${toolName}`, {
+                    jsonrpc: "2.0",
+                    id: Date.now(),
+                    error: { code: -1, message: errorMsg }
+                });
+                
+                showResult(toolName, `Error: ${errorMsg}`, 'error');
+                
+            } else if (toolName === 'countdown') {
+                const n = parameters.n || 5;
+                let countdown = '';
+                
+                for (let i = n; i > 0; i--) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    countdown += `Countdown: ${i}\\n`;
+                    showResult(toolName, countdown, 'streaming');
+                    
+                    addLogEntry('stream', `Countdown Stream: ${toolName}`, {
+                        event: "stream_data",
+                        data: { count: i, remaining: i - 1 }
+                    });
+                }
+                
+                countdown += "🎯 Countdown complete!";
+                showResult(toolName, countdown, 'success');
+                
+                addLogEntry('response', `Tool Complete: ${toolName}`, {
+                    jsonrpc: "2.0",
+                    id: Date.now(),
+                    result: { content: [{ type: "text", text: "Countdown complete!" }] }
+                });
+                
+            } else if (toolName === 'increment_counter') {
+                await new Promise(resolve => setTimeout(resolve, 400));
+                const counterValue = Math.floor(Math.random() * 100) + 1;
+                const response = `Counter incremented to: ${counterValue}`;
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, {
+                    jsonrpc: "2.0",
+                    id: Date.now(),
+                    result: { content: [{ type: "text", text: response }] }
+                });
+                
+                showResult(toolName, response, 'success');
+                
+            } else if (toolName === 'get_server_info') {
+                await new Promise(resolve => setTimeout(resolve, 600));
+                const serverInfo = {
+                    server_name: "MCP Playground Server",
+                    version: "1.0.0",
+                    uptime: "2h 15m 30s",
+                    features: {
+                        tools: 5,
+                        resources: 3,
+                        prompts: 1,
+                        streaming: true,
+                        stateful: true,
+                        error_handling: true
+                    },
+                    current_counter: Math.floor(Math.random() * 50),
+                    logs_in_memory: logCounter
+                };
+                
+                const response = JSON.stringify(serverInfo, null, 2);
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, {
+                    jsonrpc: "2.0",
+                    id: Date.now(),
+                    result: { content: [{ type: "text", text: response }] }
+                });
+                
+                showResult(toolName, response, 'success');
+            }
+        }
+        
+        async function testResource(resourceUri) {
+            const resultId = resourceUri.replace(/[^a-zA-Z0-9]/g, '_');
+            
+            addLogEntry('request', `Resource Read: ${resourceUri}`, {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "resources/read",
+                params: { uri: resourceUri }
+            });
+            
+            showResult(resultId, 'Reading resource...', 'streaming');
+            
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            let result;
+            if (resourceUri === "time://current") {
+                result = new Date().toISOString();
+            } else if (resourceUri === "data://big_text") {
+                result = "=== LARGE TEXT RESOURCE (10KB+) ===\\n" +
+                        "Generated at: " + new Date().toISOString() + "\\n" +
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit...\\n".repeat(20) +
+                        "[Content truncated for demo - full version would be 10KB+]";
+            } else if (resourceUri === "image://tiny_png_base64") {
+                result = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76L...\\n[Base64 PNG data - 8x8 red square]";
+            }
+            
+            addLogEntry('response', `Resource Result: ${resourceUri}`, {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                result: { contents: [{ type: "text", text: result }] }
+            });
+            
+            showResult(resultId, result, 'success');
+        }
+        
+        async function testPrompt(promptName) {
+            const paramsInput = document.getElementById(`prompt-params-${promptName}`);
+            let arguments = {};
+            
+            try {
+                arguments = JSON.parse(paramsInput.value || '{}');
+            } catch (e) {
+                showResult(promptName, 'Invalid JSON arguments', 'error');
+                return;
+            }
+            
+            addLogEntry('request', `Prompt Generation: ${promptName}`, {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "prompts/get",
+                params: { name: promptName, arguments: arguments }
+            });
+            
+            showResult(promptName, 'Generating prompt...', 'streaming');
+            
+            await new Promise(resolve => setTimeout(resolve, 400));
+            
+            const name = arguments.name || "World";
+            const promptText = `Write a friendly greeting for ${name}.`;
+            
+            addLogEntry('response', `Prompt Result: ${promptName}`, {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                result: {
+                    description: `Greeting prompt for ${name}`,
+                    messages: [
+                        { role: "user", content: { type: "text", text: promptText } }
+                    ]
+                }
+            });
+            
+            showResult(promptName, `Generated prompt:\\n"${promptText}"`, 'success');
+        }
+        
+        function showResult(id, message, type) {
+            const resultDiv = document.getElementById(`result-${id}`);
+            if (resultDiv) {
+                resultDiv.style.display = 'block';
+                resultDiv.className = `result-area result-${type}`;
+                resultDiv.textContent = message;
+            }
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabName}-content`).classList.add('active');
+        }
+        
+        function clearLogs() {
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #95a5a6;">
+                    <div style="font-size: 2em; margin-bottom: 10px;">📝</div>
+                    <p>Logs cleared. New MCP operations will appear here...</p>
+                </div>
+            `;
+            logCounter = 0;
+        }
+        
+        function loadFeatureForTesting(type, name) {
+            const testingArea = document.getElementById('testingArea');
+            
+            let feature = null;
+            let icon = '';
+            
+            if (type === 'tool') {
+                feature = comprehensiveFeatures.tools.find(t => t.name === name);
+                icon = '🛠️';
+            } else if (type === 'resource') {
+                feature = comprehensiveFeatures.resources.find(r => r.uri === name);
+                icon = '📦';
+            } else if (type === 'prompt') {
+                feature = comprehensiveFeatures.prompts.find(p => p.name === name);
+                icon = '💬';
+            }
+            
+            if (!feature) return;
+            
+            const featureName = type === 'resource' ? feature.name : feature.name;
+            const featureId = type === 'resource' ? feature.uri : feature.name;
+            const categoryClass = `category-${feature.category.toLowerCase().replace(' ', '')}`;
+            
+            let parametersSection = '';
+            if (type === 'tool' || type === 'prompt') {
+                const defaultParams = type === 'tool' ? getDefaultParams(feature.inputSchema) : getPromptDefaults(feature);
+                const paramLabel = type === 'tool' ? 'Tool Parameters (JSON)' : 'Prompt Arguments (JSON)';
+                
+                parametersSection = `
+                    <div class="parameter-section">
+                        <div class="parameter-label">
+                            ⚙️ ${paramLabel}
+                        </div>
+                        <textarea class="parameter-input" id="testing-params" 
+                                  placeholder="Enter JSON parameters">${defaultParams}</textarea>
+                    </div>
+                `;
+            }
+            
+            const actionText = type === 'tool' ? 'Execute Tool' : type === 'resource' ? 'Read Resource' : 'Generate Prompt';
+            const actionIcon = type === 'tool' ? '🚀' : type === 'resource' ? '📖' : '✨';
+            
+            testingArea.innerHTML = `
+                <div class="testing-card">
+                    <div class="testing-header">
+                        <div class="testing-icon">${icon}</div>
+                        <div>
+                            <div class="testing-title">${featureName}</div>
+                            <div class="testing-category ${categoryClass}">${feature.category}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="testing-description">
+                        ${feature.description}
+                    </div>
+                    
+                    ${parametersSection}
+                    
+                    <button class="execute-btn" onclick="executeFeature('${type}', '${featureId}')">
+                        ${actionIcon} ${actionText}
+                    </button>
+                    
+                    <div class="response-section" id="response-section" style="display: none;">
+                        <div class="response-header">
+                            <div class="response-title">
+                                📤 Response
+                                <span class="status-indicator-response" id="response-status"></span>
+                            </div>
+                            <div>
+                                <span class="response-time" id="response-time"></span>
+                                <button class="copy-btn" onclick="copyResponse()">📋 Copy</button>
+                            </div>
+                        </div>
+                        <div class="json-viewer" id="response-json"></div>
+                        <div class="stream-output" id="stream-output" style="display: none;"></div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function executeFeature(type, featureId) {
+            const executeBtn = document.querySelector('.execute-btn');
+            const responseSection = document.getElementById('response-section');
+            const responseStatus = document.getElementById('response-status');
+            const responseTime = document.getElementById('response-time');
+            const responseJson = document.getElementById('response-json');
+            const streamOutput = document.getElementById('stream-output');
+            
+            // Reset and show response section
+            responseSection.style.display = 'block';
+            streamOutput.style.display = 'none';
+            streamOutput.innerHTML = '';
+            
+            // Set loading state
+            executeBtn.disabled = true;
+            executeBtn.innerHTML = '<span class="loading-spinner"></span> Executing...';
+            responseStatus.className = 'status-indicator-response status-streaming';
+            responseStatus.innerHTML = '⏳ Processing';
+            responseTime.textContent = 'Running...';
+            
+            const startTime = Date.now();
+            
+            if (type === 'tool') {
+                executeToolInTesting(featureId, startTime);
+            } else if (type === 'resource') {
+                executeResourceInTesting(featureId, startTime);
+            } else if (type === 'prompt') {
+                executePromptInTesting(featureId, startTime);
+            }
+        }
+        
+        async function executeToolInTesting(toolName, startTime) {
+            const paramsInput = document.getElementById('testing-params');
+            let parameters = {};
+            
+            try {
+                parameters = JSON.parse(paramsInput.value || '{}');
+            } catch (e) {
+                finishExecution(false, 'Invalid JSON parameters', null, startTime);
+                return;
+            }
+            
+            // Log the request
+            const request = {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "tools/call",
+                params: {
+                    name: toolName,
+                    arguments: parameters
+                }
+            };
+            
+            addLogEntry('request', `Tool Call: ${toolName}`, request);
+            
+            // Simulate different tool behaviors with proper responses
+            if (toolName === 'add') {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const result = (parameters.a || 0) + (parameters.b || 0);
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Adding ${parameters.a} + ${parameters.b} = ${result}`
+                            }
+                        ]
+                    }
+                };
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, response);
+                finishExecution(true, null, response, startTime);
+                
+            } else if (toolName === 'fail_on_purpose') {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                const errorMsg = parameters.message || "Intentional test error";
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    error: {
+                        code: -1,
+                        message: errorMsg
+                    }
+                };
+                
+                addLogEntry('error', `Tool Error: ${toolName}`, response);
+                finishExecution(false, errorMsg, response, startTime);
+                
+            } else if (toolName === 'countdown') {
+                const n = parameters.n || 5;
+                const streamOutput = document.getElementById('stream-output');
+                streamOutput.style.display = 'block';
+                streamOutput.innerHTML = '<strong>🔄 Streaming Output:</strong><br>';
+                
+                for (let i = n; i > 0; i--) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    streamOutput.innerHTML += `Countdown: ${i}<br>`;
+                    
+                    addLogEntry('stream', `Countdown Stream: ${toolName}`, {
+                        event: "stream_data",
+                        data: { count: i, remaining: i - 1 }
+                    });
+                }
+                
+                streamOutput.innerHTML += '<strong>🎯 Countdown complete!</strong>';
+                
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [
+                            {
+                                type: "text",
+                                text: "Countdown completed successfully"
+                            }
+                        ]
+                    }
+                };
+                
+                addLogEntry('response', `Tool Complete: ${toolName}`, response);
+                finishExecution(true, null, response, startTime);
+                
+            } else if (toolName === 'increment_counter') {
+                await new Promise(resolve => setTimeout(resolve, 400));
+                const counterValue = Math.floor(Math.random() * 100) + 1;
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [
+                            {
+                                type: "text",
+                                text: `Counter incremented to: ${counterValue}`
+                            }
+                        ]
+                    }
+                };
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, response);
+                finishExecution(true, null, response, startTime);
+                
+            } else if (toolName === 'get_server_info') {
+                await new Promise(resolve => setTimeout(resolve, 600));
+                const serverInfo = {
+                    server_name: "MCP Playground Server",
+                    version: "1.0.0",
+                    uptime_seconds: 8130,
+                    uptime_human: "2h 15m 30s",
+                    features: {
+                        tools: 5,
+                        resources: 3,
+                        prompts: 1,
+                        streaming: true,
+                        stateful: true,
+                        error_handling: true
+                    },
+                    current_counter: Math.floor(Math.random() * 50),
+                    logs_in_memory: logCounter,
+                    last_activity: new Date().toISOString()
+                };
+                
+                const response = {
+                    jsonrpc: "2.0",
+                    id: request.id,
+                    result: {
+                        content: [
+                            {
+                                type: "text",
+                                text: JSON.stringify(serverInfo, null, 2)
+                            }
+                        ]
+                    }
+                };
+                
+                addLogEntry('response', `Tool Result: ${toolName}`, response);
+                finishExecution(true, null, response, startTime);
+            }
+        }
+        
+        async function executeResourceInTesting(resourceUri, startTime) {
+            const request = {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "resources/read",
+                params: { uri: resourceUri }
+            };
+            
+            addLogEntry('request', `Resource Read: ${resourceUri}`, request);
+            
+            await new Promise(resolve => setTimeout(resolve, 600));
+            
+            let content;
+            if (resourceUri === "time://current") {
+                content = new Date().toISOString();
+            } else if (resourceUri === "data://big_text") {
+                content = "=== LARGE TEXT RESOURCE (10KB+) ===\\n" +
+                        "Generated at: " + new Date().toISOString() + "\\n" +
+                        "Size: ~10,240 characters\\n" +
+                        "Purpose: Testing large context window handling\\n" +
+                        "=" + "=".repeat(50) + "\\n\\n" +
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. ".repeat(100) +
+                        "\\n\\n[Content truncated for demo - full version would be 10KB+]";
+            } else if (resourceUri === "image://tiny_png_base64") {
+                content = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABESURBVBiVY/z//z8DAwMDw3+cYP///wwMDAyM/3GC////MzAwMDD+xwn+//8PxijO+Y8D/P//nwEbwKmAEVcBTgVYFQAAAAD//2JgYGAAAAAA//9iYGBgAAAAAP//YmBgYAAAAAD//2JgYGAAAAAA//9iYGBgAAAAAP//YmBgYAAAAAD//w==";
+            }
+            
+            const response = {
+                jsonrpc: "2.0",
+                id: request.id,
+                result: {
+                    contents: [
+                        {
+                            uri: resourceUri,
+                            mimeType: resourceUri.includes('image') ? 'image/png' : 'text/plain',
+                            text: content
+                        }
+                    ]
+                }
+            };
+            
+            addLogEntry('response', `Resource Result: ${resourceUri}`, response);
+            finishExecution(true, null, response, startTime);
+        }
+        
+        async function executePromptInTesting(promptName, startTime) {
+            const paramsInput = document.getElementById('testing-params');
+            let arguments = {};
+            
+            try {
+                arguments = JSON.parse(paramsInput.value || '{}');
+            } catch (e) {
+                finishExecution(false, 'Invalid JSON arguments', null, startTime);
+                return;
+            }
+            
+            const request = {
+                jsonrpc: "2.0",
+                id: Date.now(),
+                method: "prompts/get",
+                params: { name: promptName, arguments: arguments }
+            };
+            
+            addLogEntry('request', `Prompt Generation: ${promptName}`, request);
+            
+            await new Promise(resolve => setTimeout(resolve, 400));
+            
+            const name = arguments.name || "World";
+            const promptText = `Write a friendly greeting for ${name}.`;
+            
+            const response = {
+                jsonrpc: "2.0",
+                id: request.id,
+                result: {
+                    description: `Greeting prompt for ${name}`,
+                    messages: [
+                        {
+                            role: "user",
+                            content: {
+                                type: "text",
+                                text: promptText
+                            }
+                        }
+                    ]
+                }
+            };
+            
+            addLogEntry('response', `Prompt Result: ${promptName}`, response);
+            finishExecution(true, null, response, startTime);
+        }
+        
+        function finishExecution(success, error, response, startTime) {
+            const executeBtn = document.querySelector('.execute-btn');
+            const responseStatus = document.getElementById('response-status');
+            const responseTime = document.getElementById('response-time');
+            const responseJson = document.getElementById('response-json');
+            
+            // Calculate execution time
+            const duration = Date.now() - startTime;
+            responseTime.textContent = `${duration}ms`;
+            
+            // Update status
+            if (success) {
+                responseStatus.className = 'status-indicator-response status-success';
+                responseStatus.innerHTML = '✅ Success';
+            } else {
+                responseStatus.className = 'status-indicator-response status-error';
+                responseStatus.innerHTML = '❌ Error';
+            }
+            
+            // Format and display JSON
+            if (response) {
+                responseJson.innerHTML = formatJson(response);
+            } else if (error) {
+                responseJson.innerHTML = formatJson({ error: error });
+            }
+            
+            // Re-enable button
+            executeBtn.disabled = false;
+            executeBtn.innerHTML = success ? '✅ Execute Again' : '🔄 Try Again';
+        }
+        
+        function formatJson(obj) {
+            const json = JSON.stringify(obj, null, 2);
+            return json
+                .replace(/("([^"\\\\]|\\\\.)*")\s*:/g, '<span class="json-key">$1</span>:')
+                .replace(/:\s*("([^"\\\\]|\\\\.)*")/g, ': <span class="json-string">$1</span>')
+                .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+                .replace(/:\s*(true|false)/g, ': <span class="json-boolean">$1</span>')
+                .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+        }
+        
+        function copyResponse() {
+            const responseJson = document.getElementById('response-json');
+            const text = responseJson.textContent || responseJson.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        function exportLogs() {
+            const logs = Array.from(document.querySelectorAll('.log-entry')).map(entry => entry.textContent);
+            const blob = new Blob([logs.join('\\n\\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mcp_playground_logs_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Auto-start demo
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                addLogEntry('request', 'Server Initialization', {
+                    event: "server_start",
+                    features_loading: ["tools", "resources", "prompts"],
+                    timestamp: new Date().toISOString()
+                });
+            }, 1000);
+            
+            setTimeout(() => {
+                addLogEntry('response', 'Server Ready', {
+                    event: "server_ready",
+                    capabilities: {
+                        tools: true,
+                        resources: true,
+                        prompts: true,
+                        streaming: "simulated",
+                        logging: "comprehensive"
+                    }
+                });
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
