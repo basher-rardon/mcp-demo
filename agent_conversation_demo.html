@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent + MCP Conversation Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+        
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6c757d;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .breadcrumb-link {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-separator {
+            color: #adb5bd;
+            font-weight: bold;
+        }
+        
+        .breadcrumb-current {
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 { 
+            font-size: 2.8em; 
+            margin-bottom: 15px; 
+            font-weight: 700;
+        }
+        
+        .header p { 
+            opacity: 0.9; 
+            font-size: 1.2em; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .demo-banner {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 700px;
+        }
+        
+        .input-section {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .input-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .scenario-section {
+            margin-bottom: 25px;
+        }
+        
+        .scenario-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .scenario-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .scenario-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .scenario-btn.active {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .input-controls {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .input-group {
+            flex: 1;
+        }
+        
+        .input-label {
+            display: block;
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .query-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease;
+        }
+        
+        .query-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .execute-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .execute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+        }
+        
+        .execute-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .left-panel, .right-panel {
+            overflow-y: auto;
+            max-height: 700px;
+        }
+        
+        .left-panel {
+            border-right: 2px solid #e9ecef;
+        }
+        
+        .panel-header {
+            background: #f8f9fa;
+            padding: 20px 25px;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .panel-title {
+            color: #2c3e50;
+            font-size: 1.4em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-content {
+            padding: 25px;
+        }
+        
+        /* Conversation Log Styles */
+        .conversation-log {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 15px;
+            animation: slideInUp 0.4s ease;
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .agent-avatar {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .system-avatar {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+        
+        .message-content {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .message-time {
+            font-size: 0.8em;
+            color: #6c757d;
+        }
+        
+        .message-text {
+            color: #495057;
+            line-height: 1.5;
+        }
+        
+        .agent-thinking {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+            font-style: italic;
+        }
+        
+        .agent-result {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* Protocol Log Styles */
+        .protocol-log {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .protocol-entry {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+            animation: slideInUp 0.4s ease;
+        }
+        
+        .protocol-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .protocol-header:hover {
+            background: #e9ecef;
+        }
+        
+        .protocol-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .protocol-type {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .protocol-request { background: #3498db; }
+        .protocol-response { background: #27ae60; }
+        .protocol-error { background: #e74c3c; }
+        
+        .protocol-method {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .protocol-timestamp {
+            font-size: 0.8em;
+            color: #6c757d;
+            font-family: monospace;
+        }
+        
+        .protocol-toggle {
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: transform 0.2s ease;
+        }
+        
+        .protocol-toggle.expanded {
+            transform: rotate(180deg);
+        }
+        
+        .protocol-body {
+            padding: 20px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            overflow-x: auto;
+            display: none;
+        }
+        
+        .protocol-body.expanded {
+            display: block;
+        }
+        
+        .json-key { color: #3498db; }
+        .json-string { color: #2ecc71; }
+        .json-number { color: #e74c3c; }
+        .json-boolean { color: #f39c12; }
+        .json-null { color: #95a5a6; }
+        
+        /* Tools Panel */
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .tool-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+        
+        .tool-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        .tool-description {
+            color: #6c757d;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .tool-schema {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #495057;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #e74c3c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        
+        .status-ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-complete {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            
+            .left-panel {
+                border-right: none;
+                border-bottom: 2px solid #e9ecef;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .input-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .scenario-buttons {
+                flex-direction: column;
+            }
+            
+            .scenario-btn {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumb">
+            <div class="breadcrumb-nav">
+                <div class="breadcrumb-item">
+                    <a href="index.html" class="breadcrumb-link">🏠 Home</a>
+                </div>
+                <span class="breadcrumb-separator">›</span>
+                <div class="breadcrumb-item">
+                    <span class="breadcrumb-current">Agent Conversation Demo</span>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="demo-banner">
+            🤖 AGENT + MCP CONVERSATION DEMO - See how AI agents interact with MCP servers in real workflows
+        </div>
+        
+        <div class="header">
+            <h1>🤖 Agent + MCP Conversation Demo</h1>
+            <p>Watch an AI agent dynamically choose and invoke MCP tools to complete user requests, with full conversation and protocol visibility</p>
+        </div>
+        
+        <div class="input-section">
+            <h2>🎯 Try it Yourself</h2>
+            
+            <div class="scenario-section">
+                <div class="scenario-buttons">
+                    <button class="scenario-btn active" onclick="selectScenario('lookup')">👤 Simple Activity Lookup</button>
+                    <button class="scenario-btn" onclick="selectScenario('activity')">📊 Comprehensive Report</button>
+                    <button class="scenario-btn" onclick="selectScenario('error')">❌ User Not Found</button>
+                    <button class="scenario-btn" onclick="selectScenario('custom')">✏️ Custom Query</button>
+                </div>
+            </div>
+            
+            <div class="input-controls">
+                <div class="input-group">
+                    <label class="input-label" for="userQuery">Enter your request:</label>
+                    <input type="text" id="userQuery" class="query-input" 
+                           placeholder="Show me recent activity for Jane Smith" 
+                           value="Show me recent activity for Jane Smith">
+                </div>
+                <button class="execute-btn" onclick="startConversation()" id="executeBtn">
+                    🚀 Start Agent Workflow
+                </button>
+            </div>
+            
+            <div class="status-indicator status-ready" id="statusIndicator">
+                ✅ Ready to process your request
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- Left Panel: Conversation & Tools -->
+            <div class="left-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">💬 Conversation Log</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="conversation-log" id="conversationLog">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💭</div>
+                            <p>No conversation yet. Enter a query above to see the agent in action!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-header">
+                    <h3 class="panel-title">🔧 MCP Capabilities</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="tools-list" id="toolsList">
+                        <!-- Tools will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel: Protocol Log -->
+            <div class="right-panel">
+                <div class="panel-header">
+                    <h3 class="panel-title">📡 MCP Protocol Log</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="protocol-log" id="protocolLog">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>Protocol messages will appear here during agent execution</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock MCP Tools, Resources, and Prompts
+        const mcpTools = [
+            {
+                name: "find_user",
+                description: "Find a user by name and return their user ID and email address",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string", description: "Full name of the user to find" }
+                    },
+                    required: ["name"]
+                }
+            },
+            {
+                name: "get_user_activity",
+                description: "Retrieve recent activity list for a specific user",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        user_id: { type: "string", description: "Unique identifier for the user" }
+                    },
+                    required: ["user_id"]
+                }
+            },
+            {
+                name: "get_user_profile",
+                description: "Get detailed profile information for a user",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        user_id: { type: "string", description: "Unique identifier for the user" }
+                    },
+                    required: ["user_id"]
+                }
+            }
+        ];
+
+        const mcpResources = [
+            {
+                uri: "config://user_lookup_settings",
+                name: "User Lookup Configuration",
+                description: "Configuration settings for user lookup operations",
+                mimeType: "application/json"
+            },
+            {
+                uri: "template://activity_report",
+                name: "Activity Report Template",
+                description: "Template for formatting user activity reports",
+                mimeType: "text/plain"
+            }
+        ];
+
+        const mcpPrompts = [
+            {
+                name: "analyze_user_request",
+                description: "Analyze user query to determine intent and extract key entities like user names",
+                arguments: [
+                    { name: "query", description: "The user's request text", required: true },
+                    { name: "context", description: "Additional context about the request", required: false }
+                ]
+            },
+            {
+                name: "format_user_activity_report",
+                description: "Format user activity data into a comprehensive, human-readable report",
+                arguments: [
+                    { name: "user", description: "User information object", required: true },
+                    { name: "activities", description: "Array of user activities", required: true },
+                    { name: "report_type", description: "Type of report (summary, detailed, etc.)", required: false }
+                ]
+            },
+            {
+                name: "format_user_profile_report",
+                description: "Format user profile data into a readable summary",
+                arguments: [
+                    { name: "user", description: "User information object", required: true },
+                    { name: "profile", description: "User profile data", required: true }
+                ]
+            },
+            {
+                name: "handle_user_not_found",
+                description: "Generate helpful response when user lookup fails",
+                arguments: [
+                    { name: "attempted_name", description: "Name that was searched for", required: true },
+                    { name: "available_users", description: "List of available users for suggestions", required: false }
+                ]
+            },
+            {
+                name: "generate_error_explanation",
+                description: "Create user-friendly explanations for technical errors",
+                arguments: [
+                    { name: "error_type", description: "Type of error encountered", required: true },
+                    { name: "error_details", description: "Technical error details", required: false },
+                    { name: "suggested_actions", description: "Recommended next steps", required: false }
+                ]
+            }
+        ];
+        
+        // Mock user database
+        const mockUsers = {
+            "jane smith": { user_id: "user_001", email: "jane.smith@company.com", name: "Jane Smith" },
+            "john doe": { user_id: "user_002", email: "john.doe@company.com", name: "John Doe" },
+            "alice johnson": { user_id: "user_003", email: "alice.johnson@company.com", name: "Alice Johnson" }
+        };
+
+        // Mock profile data
+        const mockProfiles = {
+            "user_001": {
+                department: "Engineering",
+                role: "Senior Software Engineer",
+                location: "San Francisco, CA",
+                joined_date: "2022-03-15",
+                manager: "Alice Johnson",
+                skills: ["JavaScript", "Python", "React", "Node.js"]
+            },
+            "user_002": {
+                department: "Product",
+                role: "Product Manager",
+                location: "New York, NY", 
+                joined_date: "2021-08-20",
+                manager: "Alice Johnson",
+                skills: ["Product Strategy", "Analytics", "User Research"]
+            },
+            "user_003": {
+                department: "Engineering",
+                role: "Engineering Manager",
+                location: "Austin, TX",
+                joined_date: "2020-01-10",
+                manager: "CTO",
+                skills: ["Leadership", "Architecture", "Mentoring", "Python"]
+            }
+        };
+        
+        // Mock activity data
+        const mockActivity = {
+            "user_001": [
+                { timestamp: "2024-01-15T10:30:00Z", action: "Logged in", details: "Web application" },
+                { timestamp: "2024-01-15T11:15:00Z", action: "Created document", details: "Q4 Report.docx" },
+                { timestamp: "2024-01-15T14:22:00Z", action: "Attended meeting", details: "Team Standup" },
+                { timestamp: "2024-01-15T16:45:00Z", action: "Updated profile", details: "Changed phone number" }
+            ],
+            "user_002": [
+                { timestamp: "2024-01-15T09:00:00Z", action: "Logged in", details: "Mobile app" },
+                { timestamp: "2024-01-15T13:30:00Z", action: "Submitted ticket", details: "IT Support #12345" }
+            ],
+            "user_003": [
+                { timestamp: "2024-01-15T08:45:00Z", action: "Logged in", details: "Web application" },
+                { timestamp: "2024-01-15T10:00:00Z", action: "Reviewed code", details: "Pull request #456" },
+                { timestamp: "2024-01-15T15:30:00Z", action: "Deployed application", details: "Production release v2.1" }
+            ]
+        };
+        
+        let conversationId = 0;
+        let isProcessing = false;
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTools();
+            setupEventListeners();
+        });
+        
+        function loadTools() {
+            const toolsList = document.getElementById('toolsList');
+            
+            // Show tools, resources, and prompts
+            let content = '<h4 style="color: #2c3e50; margin-bottom: 15px;">🛠️ Tools</h4>';
+            content += mcpTools.map(tool => `
+                <div class="tool-card">
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-description">${tool.description}</div>
+                    <div class="tool-schema">${JSON.stringify(tool.inputSchema, null, 2)}</div>
+                </div>
+            `).join('');
+            
+            content += '<h4 style="color: #2c3e50; margin: 25px 0 15px 0;">📦 Resources</h4>';
+            content += mcpResources.map(resource => `
+                <div class="tool-card">
+                    <div class="tool-name">${resource.name}</div>
+                    <div class="tool-description">${resource.description}</div>
+                    <div class="tool-schema">URI: ${resource.uri}\nMIME Type: ${resource.mimeType}</div>
+                </div>
+            `).join('');
+            
+            content += '<h4 style="color: #2c3e50; margin: 25px 0 15px 0;">💬 Prompt Templates</h4>';
+            content += mcpPrompts.map(prompt => `
+                <div class="tool-card">
+                    <div class="tool-name">${prompt.name}</div>
+                    <div class="tool-description">${prompt.description}</div>
+                    <div class="tool-schema">Arguments: ${prompt.arguments.map(arg => 
+                        `${arg.name}${arg.required ? '*' : ''}: ${arg.description}`
+                    ).join('\n')}</div>
+                </div>
+            `).join('');
+            
+            toolsList.innerHTML = content;
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('userQuery').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startConversation();
+                }
+            });
+        }
+        
+        function selectScenario(scenario) {
+            // Update button states
+            document.querySelectorAll('.scenario-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const queryInput = document.getElementById('userQuery');
+            
+            switch(scenario) {
+                case 'lookup':
+                    queryInput.value = "Show me recent activity for Jane Smith";
+                    break;
+                case 'activity':
+                    queryInput.value = "Give me a comprehensive report on John Doe including profile and recent activity";
+                    break;
+                case 'error':
+                    queryInput.value = "Find information for Bob Wilson";
+                    break;
+                case 'custom':
+                    queryInput.value = "";
+                    queryInput.placeholder = "Enter your custom query here...";
+                    break;
+            }
+        }
+        
+        async function startConversation() {
+            if (isProcessing) return;
+            
+            const query = document.getElementById('userQuery').value.trim();
+            if (!query) {
+                alert('Please enter a query first!');
+                return;
+            }
+            
+            isProcessing = true;
+            conversationId++;
+            
+            // Update UI state
+            updateStatus('processing', 'Processing your request...');
+            document.getElementById('executeBtn').disabled = true;
+            document.getElementById('executeBtn').innerHTML = '<span class="loading-spinner"></span>Processing...';
+            
+            // Clear logs if this is a new conversation
+            clearConversationLog();
+            clearProtocolLog();
+            
+            try {
+                await runAgentWorkflow(query);
+                updateStatus('complete', 'Workflow completed successfully!');
+            } catch (error) {
+                updateStatus('ready', 'Error occurred during processing');
+                addConversationMessage('system', 'System Error', `An error occurred: ${error.message}`);
+            } finally {
+                isProcessing = false;
+                document.getElementById('executeBtn').disabled = false;
+                document.getElementById('executeBtn').innerHTML = '🚀 Start Agent Workflow';
+            }
+        }
+        
+        async function runAgentWorkflow(query) {
+            // Step 1: User input
+            addConversationMessage('user', 'User', query);
+            await delay(500);
+            
+            // Step 2: Agent initialization - discover MCP capabilities
+            addConversationMessage('agent', 'Agent', 'Starting up and discovering available MCP capabilities...', 'thinking');
+            await delay(800);
+            
+            // Step 2a: Discover tools
+            await callMcpDiscovery('tools/list', {}, 'tools');
+            await delay(400);
+            
+            // Step 2b: Discover resources  
+            await callMcpDiscovery('resources/list', {}, 'resources');
+            await delay(400);
+            
+            // Step 2c: Discover prompts
+            await callMcpDiscovery('prompts/list', {}, 'prompts');
+            await delay(600);
+            
+            addConversationMessage('agent', 'Agent', 'MCP discovery complete! I now have access to tools, resources, and prompt templates. Let me analyze your request...', 'thinking');
+            await delay(800);
+            
+            // Step 3: Use prompt template to analyze user query
+            const analysisResult = await callMcpPrompt('analyze_user_request', { 
+                query: query,
+                context: "User is requesting information about someone"
+            });
+            
+            if (!analysisResult.success) {
+                addConversationMessage('agent', 'Agent', 'I had trouble analyzing your request. Let me try a direct approach.', 'thinking');
+            }
+            
+            await delay(600);
+            
+            // Step 4: Extract user name and determine intent
+            const userName = extractUserName(query);
+            const needsProfile = query.toLowerCase().includes('profile') || query.toLowerCase().includes('comprehensive') || query.toLowerCase().includes('report');
+            
+            if (!userName) {
+                // Use error handling prompt template
+                const errorResult = await callMcpPrompt('handle_user_not_found', {
+                    attempted_name: "unspecified",
+                    available_users: Object.keys(mockUsers)
+                });
+                
+                addConversationMessage('agent', 'Agent', 'I couldn\'t identify a specific user name in your request. Could you please provide a name? Available users include: Jane Smith, John Doe, Alice Johnson.', 'result');
+                return;
+            }
+            
+            addConversationMessage('agent', 'Agent', `Analysis complete! I identified that you're asking about "${userName}"${needsProfile ? ' and need a comprehensive report including profile data' : ' and need activity information'}. Let me look them up.`, 'thinking');
+            await delay(800);
+            
+            // Step 5: Call find_user tool
+            const findUserResult = await callMcpTool('find_user', { name: userName });
+            
+            if (!findUserResult.success) {
+                // Use error prompt template
+                await callMcpPrompt('handle_user_not_found', {
+                    attempted_name: userName,
+                    available_users: Object.keys(mockUsers)
+                });
+                
+                addConversationMessage('agent', 'Agent', `I couldn't find a user named "${userName}" in the system. Available users are: Jane Smith, John Doe, Alice Johnson. Please check the spelling or try one of these names.`, 'result');
+                return;
+            }
+            
+            const userData = findUserResult.result;
+            addConversationMessage('agent', 'Agent', `Perfect! I found ${userData.name} (${userData.email}). Now let me gather the requested information...`, 'thinking');
+            await delay(1000);
+            
+            let profileData = null;
+            let activities = null;
+            
+            // Step 6: Get user profile if needed
+            if (needsProfile) {
+                const profileResult = await callMcpTool('get_user_profile', { user_id: userData.user_id });
+                if (profileResult.success) {
+                    profileData = profileResult.result;
+                    addConversationMessage('agent', 'Agent', 'Retrieved profile information. Now getting activity data...', 'thinking');
+                    await delay(600);
+                }
+            }
+            
+            // Step 7: Get user activity
+            const activityResult = await callMcpTool('get_user_activity', { user_id: userData.user_id });
+            
+            if (!activityResult.success) {
+                await callMcpPrompt('generate_error_explanation', {
+                    error_type: "data_retrieval_failure",
+                    error_details: "Could not fetch user activity data"
+                });
+                
+                addConversationMessage('agent', 'Agent', `I found the user but couldn't retrieve their activity data. There might be a system issue or the user may not have any recorded activities.`, 'result');
+                return;
+            }
+            
+            activities = activityResult.result;
+            
+            // Step 8: Format response using appropriate prompt template
+            addConversationMessage('agent', 'Agent', 'Data collection complete! Using formatting templates to create your response...', 'thinking');
+            await delay(800);
+            
+            let formattedResult;
+            if (profileData) {
+                // Use comprehensive report template
+                await callMcpPrompt('format_user_profile_report', {
+                    user: userData,
+                    profile: profileData
+                });
+                
+                await callMcpPrompt('format_user_activity_report', {
+                    user: userData,
+                    activities: activities,
+                    report_type: "comprehensive"
+                });
+                
+                formattedResult = formatComprehensiveReport(userData, profileData, activities);
+            } else {
+                // Use activity report template
+                await callMcpPrompt('format_user_activity_report', {
+                    user: userData,
+                    activities: activities,
+                    report_type: "activity_only"
+                });
+                
+                formattedResult = formatActivitySummary(userData, activities);
+            }
+            
+            // Step 9: Present final results
+            addConversationMessage('agent', 'Agent', formattedResult, 'result');
+        }
+        
+        function extractUserName(query) {
+            // Simple name extraction - in a real system, this would be more sophisticated
+            const patterns = [
+                /(?:for|about)\s+([A-Z][a-z]+ [A-Z][a-z]+)/i,
+                /([A-Z][a-z]+ [A-Z][a-z]+)/g
+            ];
+            
+            for (const pattern of patterns) {
+                const match = query.match(pattern);
+                if (match) {
+                    return match[1] || match[0];
+                }
+            }
+            return null;
+        }
+        
+        async function callMcpDiscovery(method, parameters, type) {
+            const requestId = Date.now();
+            
+            const request = {
+                jsonrpc: "2.0",
+                id: requestId,
+                method: method,
+                params: parameters
+            };
+            
+            addProtocolLog('request', `Discovery: ${method}`, request);
+            await delay(600);
+            
+            let result;
+            if (method === 'tools/list') {
+                result = { tools: mcpTools };
+            } else if (method === 'resources/list') {
+                result = { resources: mcpResources };
+            } else if (method === 'prompts/list') {
+                result = { prompts: mcpPrompts };
+            }
+            
+            const response = {
+                jsonrpc: "2.0",
+                id: requestId,
+                result: result
+            };
+            
+            addProtocolLog('response', `Discovery: ${method} result`, response);
+            return { success: true, result: result };
+        }
+
+        async function callMcpPrompt(promptName, arguments) {
+            const requestId = Date.now();
+            
+            const request = {
+                jsonrpc: "2.0",
+                id: requestId,
+                method: "prompts/get",
+                params: {
+                    name: promptName,
+                    arguments: arguments
+                }
+            };
+            
+            addProtocolLog('request', `Prompt: ${promptName}`, request);
+            await delay(500);
+            
+            // Simulate prompt template execution
+            let promptResult;
+            if (promptName === 'analyze_user_request') {
+                promptResult = {
+                    description: `Analysis of user query: "${arguments.query}"`,
+                    messages: [{
+                        role: "user",
+                        content: {
+                            type: "text",
+                            text: `The user is asking about user information. Extracted intent: user lookup. Query complexity: ${arguments.query.length > 50 ? 'high' : 'simple'}.`
+                        }
+                    }]
+                };
+            } else if (promptName === 'format_user_activity_report') {
+                promptResult = {
+                    description: `Activity report formatting template for ${arguments.user?.name || 'user'}`,
+                    messages: [{
+                        role: "system",
+                        content: {
+                            type: "text",
+                            text: `Format the following user activity data into a comprehensive report. Include summary statistics, recent activity highlights, and detailed activity log.`
+                        }
+                    }]
+                };
+            } else if (promptName === 'handle_user_not_found') {
+                promptResult = {
+                    description: `Error handling template for user not found: ${arguments.attempted_name}`,
+                    messages: [{
+                        role: "assistant",
+                        content: {
+                            type: "text",
+                            text: `I apologize, but I couldn't find a user named "${arguments.attempted_name}". Here are some suggestions...`
+                        }
+                    }]
+                };
+            } else {
+                promptResult = {
+                    description: `Template: ${promptName}`,
+                    messages: [{
+                        role: "system",
+                        content: {
+                            type: "text",
+                            text: `Executing prompt template: ${promptName}`
+                        }
+                    }]
+                };
+            }
+            
+            const response = {
+                jsonrpc: "2.0",
+                id: requestId,
+                result: promptResult
+            };
+            
+            addProtocolLog('response', `Prompt: ${promptName} result`, response);
+            return { success: true, result: promptResult };
+        }
+
+        async function callMcpTool(toolName, parameters) {
+            const requestId = Date.now();
+            
+            // Log the request
+            const request = {
+                jsonrpc: "2.0",
+                id: requestId,
+                method: "tools/call",
+                params: {
+                    name: toolName,
+                    arguments: parameters
+                }
+            };
+            
+            addProtocolLog('request', `Tool: ${toolName}`, request);
+            await delay(400);
+            
+            // Simulate tool execution
+            try {
+                let result;
+                if (toolName === 'find_user') {
+                    const userName = parameters.name.toLowerCase();
+                    const user = mockUsers[userName];
+                    if (!user) {
+                        throw new Error(`User "${parameters.name}" not found`);
+                    }
+                    result = user;
+                } else if (toolName === 'get_user_activity') {
+                    const activities = mockActivity[parameters.user_id];
+                    if (!activities) {
+                        throw new Error(`No activity data for user ${parameters.user_id}`);
+                    }
+                    result = activities;
+                } else if (toolName === 'get_user_profile') {
+                    const profile = mockProfiles[parameters.user_id];
+                    if (!profile) {
+                        throw new Error(`No profile data for user ${parameters.user_id}`);
+                    }
+                    result = profile;
+                }
+                
+                const response = {
+                    jsonrpc: "2.0",
+                    id: requestId,
+                    result: {
+                        content: [{
+                            type: "text",
+                            text: JSON.stringify(result, null, 2)
+                        }]
+                    }
+                };
+                
+                addProtocolLog('response', `Tool: ${toolName} result`, response);
+                return { success: true, result: result };
+                
+            } catch (error) {
+                const errorResponse = {
+                    jsonrpc: "2.0",
+                    id: requestId,
+                    error: {
+                        code: -32000,
+                        message: error.message,
+                        data: {
+                            tool: toolName,
+                            parameters: parameters
+                        }
+                    }
+                };
+                
+                addProtocolLog('error', `Tool: ${toolName} error`, errorResponse);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function formatActivitySummary(user, activities) {
+            const recentCount = activities.length;
+            const latestActivity = activities[0];
+            
+            let summary = `Here's the activity summary for ${user.name}:\n\n`;
+            summary += `📧 Email: ${user.email}\n`;
+            summary += `📊 Recent Activities: ${recentCount} activities found\n\n`;
+            summary += `Latest Activity: ${latestActivity.action} at ${new Date(latestActivity.timestamp).toLocaleString()}\n\n`;
+            summary += `Full Activity Log:\n`;
+            
+            activities.forEach((activity, index) => {
+                const time = new Date(activity.timestamp).toLocaleString();
+                summary += `${index + 1}. ${activity.action} - ${activity.details} (${time})\n`;
+            });
+            
+            return summary;
+        }
+
+        function formatComprehensiveReport(user, profile, activities) {
+            const recentCount = activities.length;
+            const latestActivity = activities[0];
+            
+            let report = `📋 COMPREHENSIVE USER REPORT\n`;
+            report += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+            
+            // User Information
+            report += `👤 USER INFORMATION\n`;
+            report += `Name: ${user.name}\n`;
+            report += `Email: ${user.email}\n`;
+            report += `User ID: ${user.user_id}\n\n`;
+            
+            // Profile Information
+            report += `🏢 PROFILE DETAILS\n`;
+            report += `Department: ${profile.department}\n`;
+            report += `Role: ${profile.role}\n`;
+            report += `Location: ${profile.location}\n`;
+            report += `Joined: ${new Date(profile.joined_date).toLocaleDateString()}\n`;
+            report += `Manager: ${profile.manager}\n`;
+            report += `Skills: ${profile.skills.join(', ')}\n\n`;
+            
+            // Activity Summary
+            report += `📊 ACTIVITY SUMMARY\n`;
+            report += `Total Recent Activities: ${recentCount}\n`;
+            report += `Latest Activity: ${latestActivity.action} at ${new Date(latestActivity.timestamp).toLocaleString()}\n\n`;
+            
+            // Detailed Activity Log
+            report += `📝 DETAILED ACTIVITY LOG\n`;
+            activities.forEach((activity, index) => {
+                const time = new Date(activity.timestamp).toLocaleString();
+                report += `${index + 1}. ${activity.action}\n`;
+                report += `   Details: ${activity.details}\n`;
+                report += `   Time: ${time}\n\n`;
+            });
+            
+            report += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+            report += `Report generated using MCP prompt templates and multi-tool workflow`;
+            
+            return report;
+        }
+        
+        function addConversationMessage(sender, senderName, text, type = 'normal') {
+            const conversationLog = document.getElementById('conversationLog');
+            
+            // Remove empty state if present
+            const emptyState = conversationLog.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            
+            let avatarClass = `${sender}-avatar`;
+            let contentClass = 'message-content';
+            
+            if (type === 'thinking') {
+                contentClass += ' agent-thinking';
+            } else if (type === 'result') {
+                contentClass += ' agent-result';
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar ${avatarClass}">
+                    ${sender === 'user' ? '👤' : sender === 'agent' ? '🤖' : '⚙️'}
+                </div>
+                <div class="${contentClass}">
+                    <div class="message-header">
+                        <div class="message-sender">${senderName}</div>
+                        <div class="message-time">${timestamp}</div>
+                    </div>
+                    <div class="message-text">${text}</div>
+                </div>
+            `;
+            
+            conversationLog.appendChild(messageDiv);
+            conversationLog.scrollTop = conversationLog.scrollHeight;
+        }
+        
+        function addProtocolLog(type, method, data) {
+            const protocolLog = document.getElementById('protocolLog');
+            
+            // Remove empty state if present
+            const emptyState = protocolLog.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'protocol-entry';
+            
+            const entryId = `protocol-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
+            entryDiv.innerHTML = `
+                <div class="protocol-header" onclick="toggleProtocolEntry('${entryId}')">
+                    <div class="protocol-info">
+                        <div class="protocol-type protocol-${type}">${type.toUpperCase()}</div>
+                        <div class="protocol-method">${method}</div>
+                    </div>
+                    <div class="protocol-timestamp">${timestamp}</div>
+                    <button class="protocol-toggle">▼</button>
+                </div>
+                <div class="protocol-body" id="${entryId}">
+                    ${formatJsonForDisplay(data)}
+                </div>
+            `;
+            
+            protocolLog.appendChild(entryDiv);
+            protocolLog.scrollTop = protocolLog.scrollHeight;
+        }
+        
+        function toggleProtocolEntry(entryId) {
+            const body = document.getElementById(entryId);
+            const toggle = body.previousElementSibling.querySelector('.protocol-toggle');
+            
+            if (body.classList.contains('expanded')) {
+                body.classList.remove('expanded');
+                toggle.classList.remove('expanded');
+            } else {
+                body.classList.add('expanded');
+                toggle.classList.add('expanded');
+            }
+        }
+        
+        function formatJsonForDisplay(obj) {
+            const json = JSON.stringify(obj, null, 2);
+            return json
+                .replace(/("([^"\\]|\\.)*")\s*:/g, '<span class="json-key">$1</span>:')
+                .replace(/:\s*("([^"\\]|\\.)*")/g, ': <span class="json-string">$1</span>')
+                .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+                .replace(/:\s*(true|false)/g, ': <span class="json-boolean">$1</span>')
+                .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+        }
+        
+        function clearConversationLog() {
+            const conversationLog = document.getElementById('conversationLog');
+            conversationLog.innerHTML = '';
+        }
+        
+        function clearProtocolLog() {
+            const protocolLog = document.getElementById('protocolLog');
+            protocolLog.innerHTML = '';
+        }
+        
+        function updateStatus(status, message) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = `status-indicator status-${status}`;
+            
+            const icons = {
+                ready: '✅',
+                processing: '⏳',
+                complete: '🎯'
+            };
+            
+            indicator.innerHTML = `${icons[status]} ${message}`;
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
