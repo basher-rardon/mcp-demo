@@ -228,7 +228,10 @@ class MCPValidator {
             this.validatePromptsList(result.prompts);
         }
         
+        // Note: content arrays are used for Claude-specific plugin messaging,
+        // not standard MCP. For standard MCP, tools/call responses should use direct result format.
         if (result.content) {
+            this.addWarning('Using content array format - this may be Claude plugin format, not standard MCP');
             this.validateContentArray(result.content);
         }
         
@@ -545,12 +548,8 @@ const MCPValidatorUtils = {
                 jsonrpc: "2.0",
                 id: 2,
                 result: {
-                    content: [
-                        {
-                            type: "text",
-                            text: "2 + 2 = 4"
-                        }
-                    ]
+                    value: 4,
+                    expression: "2 + 2"
                 }
             },
             

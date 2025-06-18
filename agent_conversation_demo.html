@@ -1227,12 +1227,7 @@
                 const response = {
                     jsonrpc: "2.0",
                     id: requestId,
-                    result: {
-                        content: [{
-                            type: "text",
-                            text: JSON.stringify(result, null, 2)
-                        }]
-                    }
+                    result: result
                 };
                 
                 addProtocolLog('response', `Tool: ${toolName} result`, response);

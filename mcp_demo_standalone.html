@@ -1261,7 +1261,7 @@
                 addLogEntry('response', `Tool Result: ${toolName}`, {
                     jsonrpc: "2.0",
                     id: Date.now(),
-                    result: { content: [{ type: "text", text: response }] }
+                    result: { message: response, tool: toolName }
                 });
                 
                 showResult(toolName, response, 'success');
@@ -1299,7 +1299,7 @@
                 addLogEntry('response', `Tool Complete: ${toolName}`, {
                     jsonrpc: "2.0",
                     id: Date.now(),
-                    result: { content: [{ type: "text", text: "Countdown complete!" }] }
+                    result: { status: "complete", message: "Countdown complete!" }
                 });
                 
             } else if (toolName === 'increment_counter') {
@@ -1310,7 +1310,7 @@
                 addLogEntry('response', `Tool Result: ${toolName}`, {
                     jsonrpc: "2.0",
                     id: Date.now(),
-                    result: { content: [{ type: "text", text: response }] }
+                    result: { message: response, tool: toolName }
                 });
                 
                 showResult(toolName, response, 'success');
@@ -1338,7 +1338,7 @@
                 addLogEntry('response', `Tool Result: ${toolName}`, {
                     jsonrpc: "2.0",
                     id: Date.now(),
-                    result: { content: [{ type: "text", text: response }] }
+                    result: { message: response, tool: toolName }
                 });
                 
                 showResult(toolName, response, 'success');
@@ -1374,7 +1374,7 @@
             addLogEntry('response', `Resource Result: ${resourceUri}`, {
                 jsonrpc: "2.0",
                 id: Date.now(),
-                result: { contents: [{ type: "text", text: result }] }
+                result: { data: result, resource: resultId }
             });
             
             showResult(resultId, result, 'success');

@@ -684,10 +684,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name === 'increment') {
     counter++;
     return {
-      content: [{ 
-        type: 'text', 
-        text: `Counter: ${counter}` 
-      }]
+      value: counter,
+      message: `Counter: ${counter}`
     };
   }
 });</pre>
@@ -804,7 +802,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       });
       await delay(100);
     }
-    return { content: [{ type: 'text', text: 'Complete!' }] };
+    return { status: 'complete', message: 'Complete!' };
   }
 });</pre>
                     </div>
@@ -1233,10 +1231,9 @@ Content-Type: application/json
                         jsonrpc: "2.0",
                         id: 2,
                         result: {
-                            content: [{
-                                type: "text",
-                                text: `${expression} = ${result}`
-                            }]
+                            value: result,
+                            expression: expression,
+                            formatted: `${expression} = ${result}`
                         }
                     };
                     
@@ -1288,10 +1285,8 @@ Content-Type: application/json
                     jsonrpc: "2.0",
                     id: request.id,
                     result: {
-                        content: [{
-                            type: "text",
-                            text: `Counter incremented to: ${simulatedCounter}`
-                        }]
+                        value: simulatedCounter,
+                        message: `Counter incremented to: ${simulatedCounter}`
                     }
                 };
                 
@@ -1321,10 +1316,8 @@ Content-Type: application/json
                     jsonrpc: "2.0",
                     id: request.id,
                     result: {
-                        content: [{
-                            type: "text",
-                            text: `Current counter value: ${simulatedCounter}`
-                        }]
+                        value: simulatedCounter,
+                        message: `Current counter value: ${simulatedCounter}`
                     }
                 };
                 
@@ -1409,10 +1402,9 @@ Content-Type: application/json
                         jsonrpc: "2.0",
                         id: request.id,
                         result: {
-                            content: [{
-                                type: "text",
-                                text: "Countdown completed!"
-                            }]
+                            status: "completed",
+                            message: "Countdown completed!",
+                            total_steps: count
                         }
                     };
                     
@@ -1671,10 +1663,8 @@ Content-Type: application/json
                     jsonrpc: "2.0",
                     id: 4,
                     result: {
-                        content: [{
-                            type: "text",
-                            text: "System healthy"
-                        }],
+                        status: "healthy",
+                        message: "System healthy",
                         metadata: {
                             execution_time: 0.045,
                             server_load: 0.23,
