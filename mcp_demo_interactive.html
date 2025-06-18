@@ -22,6 +22,47 @@
             position: relative;
         }
         
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 15px 40px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+        
+        .breadcrumb-nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6c757d;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .breadcrumb-link {
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .breadcrumb-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .breadcrumb-separator {
+            color: #adb5bd;
+            font-weight: bold;
+        }
+        
+        .breadcrumb-current {
+            color: #495057;
+            font-weight: 500;
+        }
+        
         .hero {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
@@ -399,6 +440,18 @@
 </head>
 <body>
     <div class="container">
+        <nav class="breadcrumb">
+            <div class="breadcrumb-nav">
+                <div class="breadcrumb-item">
+                    <a href="index.html" class="breadcrumb-link">🏠 Home</a>
+                </div>
+                <span class="breadcrumb-separator">›</span>
+                <div class="breadcrumb-item">
+                    <span class="breadcrumb-current">Interactive Guide</span>
+                </div>
+            </div>
+        </nav>
+        
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
