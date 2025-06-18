@@ -387,15 +387,45 @@
             color: #ecf0f1;
             padding: 15px;
             border-radius: 6px;
-            font-family: 'Monaco', 'Menlo', monospace;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
             font-size: 0.85em;
+            line-height: 1.6;
             overflow-x: auto;
+            white-space: pre;
         }
         
-        .json-key { color: #3498db; }
-        .json-string { color: #2ecc71; }
-        .json-number { color: #e74c3c; }
-        .json-boolean { color: #f39c12; }
+        .json-key { 
+            color: #3498db; 
+            font-weight: 600;
+        }
+        
+        .json-string { 
+            color: #2ecc71; 
+        }
+        
+        .json-number { 
+            color: #e74c3c; 
+            font-weight: 600;
+        }
+        
+        .json-boolean { 
+            color: #f39c12; 
+            font-weight: 600;
+        }
+        
+        .json-null { 
+            color: #95a5a6; 
+            font-style: italic;
+        }
+        
+        .json-bracket {
+            color: #ecf0f1;
+            font-weight: bold;
+        }
+        
+        .json-comma {
+            color: #bdc3c7;
+        }
         
         .stream-output {
             background: #fff3cd;

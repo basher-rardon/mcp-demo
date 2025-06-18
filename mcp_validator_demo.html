@@ -130,9 +130,12 @@
             padding: 15px;
             border: 2px solid #dee2e6;
             border-radius: 8px;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9em;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
             resize: vertical;
+            white-space: pre;
+            tab-size: 2;
         }
         
         .validate-btn {
@@ -400,6 +403,7 @@
     </div>
 
     <script src="mcp-validator.js"></script>
+    <script src="json-formatter.js"></script>
     <script>
         let validator = new MCPValidator();
         let examples = MCPValidatorUtils.createExamples();
@@ -451,7 +455,7 @@
         function loadExample(exampleName) {
             const example = examples[exampleName];
             if (example) {
-                document.getElementById('jsonInput').value = JSON.stringify(example, null, 2);
+                document.getElementById('jsonInput').value = JSONFormatter.format(example);
                 validateMessage();
             }
         }

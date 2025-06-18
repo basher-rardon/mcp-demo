@@ -410,22 +410,51 @@
             padding: 20px;
             background: #2c3e50;
             color: #ecf0f1;
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 0.9em;
-            line-height: 1.4;
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.85em;
+            line-height: 1.6;
             overflow-x: auto;
             display: none;
+            white-space: pre;
+            border-radius: 0 0 8px 8px;
         }
         
         .protocol-body.expanded {
             display: block;
         }
         
-        .json-key { color: #3498db; }
-        .json-string { color: #2ecc71; }
-        .json-number { color: #e74c3c; }
-        .json-boolean { color: #f39c12; }
-        .json-null { color: #95a5a6; }
+        .json-key { 
+            color: #3498db; 
+            font-weight: 600;
+        }
+        
+        .json-string { 
+            color: #2ecc71; 
+        }
+        
+        .json-number { 
+            color: #e74c3c; 
+            font-weight: 600;
+        }
+        
+        .json-boolean { 
+            color: #f39c12; 
+            font-weight: 600;
+        }
+        
+        .json-null { 
+            color: #95a5a6; 
+            font-style: italic;
+        }
+        
+        .json-bracket {
+            color: #ecf0f1;
+            font-weight: bold;
+        }
+        
+        .json-comma {
+            color: #bdc3c7;
+        }
         
         /* Tools Panel */
         .tools-list {
@@ -1376,11 +1405,27 @@
         function formatJsonForDisplay(obj) {
             const json = JSON.stringify(obj, null, 2);
             return json
+                // Format keys
                 .replace(/("([^"\\]|\\.)*")\s*:/g, '<span class="json-key">$1</span>:')
+                // Format string values
                 .replace(/:\s*("([^"\\]|\\.)*")/g, ': <span class="json-string">$1</span>')
+                // Format numbers
                 .replace(/:\s*(-?\d+\.?\d*)/g, ': <span class="json-number">$1</span>')
+                // Format booleans
                 .replace(/:\s*(true|false)/g, ': <span class="json-boolean">$1</span>')
-                .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>');
+                // Format null
+                .replace(/:\s*(null)/g, ': <span class="json-null">$1</span>')
+                // Format brackets and braces
+                .replace(/(\{|\[)/g, '<span class="json-bracket">$1</span>')
+                .replace(/(\}|\])/g, '<span class="json-bracket">$1</span>')
+                // Format commas
+                .replace(/,$/gm, '<span class="json-comma">,</span>')
+                // Escape HTML in the content while preserving our spans
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                // Restore our formatting spans
+                .replace(/&lt;span class="([^"]*)"&gt;([^&]*)&lt;\/span&gt;/g, '<span class="$1">$2</span>');
         }
         
         function clearConversationLog() {
